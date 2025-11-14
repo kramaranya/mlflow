@@ -102,14 +102,13 @@ describe('ExperimentGenAIOverviewPage', () => {
     });
 
     it('should switch to Quality tab when clicked', async () => {
-      const user = userEvent.setup();
       renderComponent();
 
       await waitFor(() => {
         expect(screen.getByRole('tab', { name: 'Quality' })).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('tab', { name: 'Quality' }));
+      await userEvent.click(screen.getByRole('tab', { name: 'Quality' }));
 
       await waitFor(() => {
         const qualityTab = screen.getByRole('tab', { name: 'Quality' });
@@ -118,14 +117,13 @@ describe('ExperimentGenAIOverviewPage', () => {
     });
 
     it('should switch to Tool calls tab when clicked', async () => {
-      const user = userEvent.setup();
       renderComponent();
 
       await waitFor(() => {
         expect(screen.getByRole('tab', { name: 'Tool calls' })).toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('tab', { name: 'Tool calls' }));
+      await userEvent.click(screen.getByRole('tab', { name: 'Tool calls' }));
 
       await waitFor(() => {
         const toolCallsTab = screen.getByRole('tab', { name: 'Tool calls' });
@@ -146,7 +144,6 @@ describe('ExperimentGenAIOverviewPage', () => {
     });
 
     it('should open time range dropdown when clicked', async () => {
-      const user = userEvent.setup();
       renderComponent();
 
       await waitFor(() => {
@@ -154,7 +151,7 @@ describe('ExperimentGenAIOverviewPage', () => {
       });
 
       const dateSelector = screen.getByRole('combobox');
-      await user.click(dateSelector);
+      await userEvent.click(dateSelector);
 
       // Check that dropdown options are visible
       await waitFor(() => {

@@ -779,7 +779,7 @@ class TrackingServiceClient:
             workspace = get_request_workspace()
             if workspace and workspace != DEFAULT_WORKSPACE_NAME:
                 encoded = urllib_parse.quote(workspace, safe="")
-                experiment_url = f"{host_url}/#/workspaces/{encoded}/experiments/{experiment_id}"
+                experiment_url = f"{host_url}/#/experiments/{experiment_id}?workspace={encoded}"
             else:
                 experiment_url = f"{host_url}/#/experiments/{experiment_id}"
         run_url = f"{experiment_url}/runs/{run_id}"

@@ -73,6 +73,31 @@ describe('ExperimentLoggedModelListPage', () => {
     rest.post('/ajax-api/2.0/mlflow/runs/search', (req, res, ctx) => res(ctx.json({ runs: [] }))),
   );
 
+  const createExperimentRoute = () => {
+    return {
+      path: RoutePaths.experimentPage,
+      pageId: PageId.experimentPage,
+      element: createLazyRouteElement(() => import('./ExperimentPageTabs')),
+      children: [
+        {
+          path: RoutePaths.experimentPageTabOverview,
+          pageId: PageId.experimentPageTabOverview,
+          element: createLazyRouteElement(() => import('../experiment-overview/ExperimentGenAIOverviewPage')),
+        },
+        {
+          path: RoutePaths.experimentPageTabTraces,
+          pageId: PageId.experimentPageTabTraces,
+          element: createLazyRouteElement(() => import('../experiment-traces/ExperimentTracesPage')),
+        },
+        {
+          path: RoutePaths.experimentPageTabModels,
+          pageId: PageId.experimentPageTabModels,
+          element: createLazyRouteElement(() => import('../experiment-logged-models/ExperimentLoggedModelListPage')),
+        },
+      ],
+    };
+  };
+
   const renderTestComponent = () => {
     const queryClient = new QueryClient();
     return render(
@@ -82,34 +107,7 @@ describe('ExperimentLoggedModelListPage', () => {
             <QueryClientProvider client={queryClient}>
               <DesignSystemProvider>
                 <TestRouter
-                  routes={[
-                    {
-                      path: RoutePaths.experimentPage,
-                      pageId: PageId.experimentPage,
-                      element: createLazyRouteElement(() => import('./ExperimentPageTabs')),
-                      children: [
-                        {
-                          path: RoutePaths.experimentPageTabOverview,
-                          pageId: PageId.experimentPageTabOverview,
-                          element: createLazyRouteElement(
-                            () => import('../experiment-overview/ExperimentGenAIOverviewPage'),
-                          ),
-                        },
-                        {
-                          path: RoutePaths.experimentPageTabTraces,
-                          pageId: PageId.experimentPageTabTraces,
-                          element: createLazyRouteElement(() => import('../experiment-traces/ExperimentTracesPage')),
-                        },
-                        {
-                          path: RoutePaths.experimentPageTabModels,
-                          pageId: PageId.experimentPageTabModels,
-                          element: createLazyRouteElement(
-                            () => import('../experiment-logged-models/ExperimentLoggedModelListPage'),
-                          ),
-                        },
-                      ],
-                    },
-                  ]}
+                  routes={[createExperimentRoute()]}
                   history={history}
                   initialEntries={[createMLflowRoutePath('/experiments/12345678/models')]}
                 />

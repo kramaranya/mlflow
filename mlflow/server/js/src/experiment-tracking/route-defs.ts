@@ -137,7 +137,7 @@ const getExperimentPageRouteDefs = () => {
 export const getRouteDefs = () => [
   {
     path: RoutePaths.rootRoute,
-    element: createLazyRouteElement(() => import('../home/HomePage')),
+    element: createLazyRouteElement(() => import('../home/RootPage')),
     pageId: PageId.home,
     handle: { getPageTitle: () => 'Home' } satisfies DocumentTitleHandle,
   },
@@ -146,6 +146,7 @@ export const getRouteDefs = () => [
     element: createLazyRouteElement(() => import('../settings/SettingsPage')),
     pageId: PageId.settingsPage,
     handle: { getPageTitle: () => 'Settings' } satisfies DocumentTitleHandle,
+    globalRoute: true, // Settings is a global route, not workspace-specific
   },
   ...getExperimentPageRouteDefs(),
   {
