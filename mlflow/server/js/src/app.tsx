@@ -22,6 +22,7 @@ import { DarkThemeProvider } from './common/contexts/DarkThemeContext';
 import { telemetryClient } from './telemetry';
 import { subscribeToWorkspaceChanges } from './common/utils/WorkspaceUtils';
 import { ServerFeaturesProvider, SERVER_FEATURES_QUERY_KEY } from './common/utils/ServerFeaturesContext';
+import '@patternfly/patternfly/patternfly.css';
 
 export function MLFlowRoot() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
