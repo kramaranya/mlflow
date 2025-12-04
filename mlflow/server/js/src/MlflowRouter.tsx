@@ -24,9 +24,11 @@ import { getRouteDefs as getExperimentTrackingRouteDefs } from './experiment-tra
 import { getRouteDefs as getModelRegistryRouteDefs } from './model-registry/route-defs';
 import { getRouteDefs as getCommonRouteDefs } from './common/route-defs';
 import { getGatewayRouteDefs } from './gateway/route-defs';
+import { shouldEnableAIGateway } from './common/utils/FeatureUtils';
 import { useInitializeExperimentRunColors } from './experiment-tracking/components/experiment-page/hooks/useExperimentRunColor';
 import { MlflowSidebar } from './common/components/MlflowSidebar';
 import { AssistantProvider, AssistantRouteContextProvider } from './assistant';
+import { useIsIntegrated } from './common/utils/embedUtils';
 import { RootAssistantLayout } from './common/components/RootAssistantLayout';
 import {
   extractWorkspaceFromSearchParams,
@@ -52,9 +54,11 @@ type MlflowRouteDef = {
 const MlflowRootLayout = ({
   showSidebar,
   setShowSidebar,
+  isEmbedded,
 }: {
   showSidebar: boolean;
   setShowSidebar: (showSidebar: boolean) => void;
+  isEmbedded: boolean;
 }) => {
   const { theme } = useDesignSystemTheme();
   const { workflowType } = useWorkflowType();
@@ -75,7 +79,7 @@ const MlflowRootLayout = ({
                   : theme.colors.backgroundSecondary,
             }}
           >
-            <MlflowSidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
+            {!isEmbedded && <MlflowSidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />}
             <main
               css={{
                 width: '100%',
@@ -109,6 +113,7 @@ const MlflowRootRoute = () => {
   const [showSidebar, setShowSidebar] = useState(true);
   const { experimentId } = useParams();
   const enableWorkflowBasedNavigation = shouldEnableWorkflowBasedNavigation();
+  const isEmbedded = useIsIntegrated();
 
   // Hide sidebar if we are in a single experiment page (only when feature flag is disabled)
   const isSingleExperimentPage = Boolean(experimentId);
@@ -124,7 +129,7 @@ const MlflowRootRoute = () => {
     <AssistantProvider>
       <AssistantRouteContextProvider />
       <WorkflowTypeProvider>
-        <MlflowRootLayout showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
+        <MlflowRootLayout showSidebar={showSidebar} setShowSidebar={setShowSidebar} isEmbedded={isEmbedded} />
       </WorkflowTypeProvider>
     </AssistantProvider>
   );
@@ -218,7 +223,7 @@ export const MlflowRouter = () => {
     () => [
       ...getExperimentTrackingRouteDefs(),
       ...getModelRegistryRouteDefs(),
-      ...getGatewayRouteDefs(),
+      ...(shouldEnableAIGateway() ? getGatewayRouteDefs() : []),
       ...getCommonRouteDefs(),
     ],
     [],

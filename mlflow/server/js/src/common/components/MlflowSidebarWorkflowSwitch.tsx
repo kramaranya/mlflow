@@ -102,6 +102,7 @@ export const MlflowSidebarWorkflowSwitch = ({
             whiteSpace: 'nowrap' as const,
           }}
           role="button"
+          aria-pressed={isGenAi}
           tabIndex={0}
           onClick={() => handleChangeWorkflowType(WorkflowType.GENAI)}
           onKeyDown={(e) => {
@@ -129,6 +130,7 @@ export const MlflowSidebarWorkflowSwitch = ({
             whiteSpace: 'nowrap' as const,
           }}
           role="button"
+          aria-pressed={!isGenAi}
           tabIndex={0}
           onClick={() => handleChangeWorkflowType(WorkflowType.MACHINE_LEARNING)}
           onKeyDown={(e) => {
