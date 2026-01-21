@@ -7,10 +7,12 @@ to FastAPI endpoints.
 """
 
 import json
+import re
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.routing import APIRoute
 from flask import Flask
 
 from mlflow.environment_variables import MLFLOW_ENABLE_WORKSPACES
@@ -22,15 +24,44 @@ from mlflow.server.gateway_api import gateway_router
 from mlflow.server.job_api import job_api_router
 from mlflow.server.otel_api import otel_router
 from mlflow.server.workspace_helpers import WORKSPACE_HEADER_NAME, resolve_workspace_from_header
-from mlflow.tracing.utils.otlp import OTLP_TRACES_PATH
 from mlflow.utils.workspace_context import (
     clear_server_request_workspace,
     set_server_request_workspace,
 )
 from mlflow.version import VERSION
 
-# FastAPI routes that do not go through the Flask WSGI bridge (currently jobs + OTLP).
-FASTAPI_NATIVE_PREFIXES = (job_api_router.prefix, OTLP_TRACES_PATH)
+
+def _get_fastapi_route_matchers(fastapi_app: FastAPI) -> list[re.Pattern[str]]:
+    # Cache only native FastAPI route regexes (exclude WSGI mount and non-HTTP routes).
+    state = fastapi_app.state
+    routes = getattr(fastapi_app, "routes", [])
+    # Refresh the cache when the route table changes (e.g., new routers added).
+    route_count = len(routes) if isinstance(routes, list) else len(list(routes))
+    if getattr(state, "fastapi_route_matcher_count", None) != route_count:
+        state.fastapi_route_matchers = [
+            route.path_regex for route in routes if isinstance(route, APIRoute)
+        ]
+        state.fastapi_route_matcher_count = route_count
+        state.fastapi_route_match_cache = {}
+    return getattr(state, "fastapi_route_matchers", [])
+
+
+def _is_fastapi_route(path: str, fastapi_app: FastAPI) -> bool:
+    # Cache match results per path to avoid repeated regex scans.
+    if not path:
+        return False
+    state = fastapi_app.state
+    match_cache = getattr(state, "fastapi_route_match_cache", None)
+    if match_cache is None:
+        match_cache = {}
+        state.fastapi_route_match_cache = match_cache
+    if path in match_cache:
+        return match_cache[path]
+
+    matchers = _get_fastapi_route_matchers(fastapi_app)
+    is_match = any(pattern.match(path) for pattern in matchers)
+    match_cache[path] = is_match
+    return is_match
 
 
 def add_fastapi_workspace_middleware(fastapi_app: FastAPI) -> None:
@@ -42,8 +73,8 @@ def add_fastapi_workspace_middleware(fastapi_app: FastAPI) -> None:
         if not MLFLOW_ENABLE_WORKSPACES.get():
             return await call_next(request)
 
-        path = request.url.path
-        if not any(path.startswith(prefix) for prefix in FASTAPI_NATIVE_PREFIXES):
+        path = request.scope.get("path") or request.url.path
+        if not _is_fastapi_route(path, request.app):
             # Skip if it's a Flask route and let the Flask before request handler handle it.
             return await call_next(request)
 

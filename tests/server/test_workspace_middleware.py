@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 import werkzeug
 from fastapi import FastAPI
+from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.testclient import TestClient
 from flask import Flask
 
@@ -111,6 +112,31 @@ def test_fastapi_workspace_middleware_handles_missing_header(monkeypatch):
     resp = client.get(ping_path)
     assert resp.status_code == 200
     assert resp.json() == {"workspace": None}
+    assert workspace_context.get_request_workspace() is None
+
+
+def test_fastapi_workspace_middleware_skips_wsgi_mount(monkeypatch):
+    monkeypatch.setenv(MLFLOW_ENABLE_WORKSPACES.name, "true")
+    app = FastAPI()
+    add_fastapi_workspace_middleware(app)
+
+    flask_wsgi_app = Flask(__name__)
+
+    @flask_wsgi_app.route("/ping")
+    def _ping_wsgi():
+        return "ok"
+
+    app.mount("/", WSGIMiddleware(flask_wsgi_app))
+
+    def _raise_if_called(_header_workspace):
+        raise AssertionError("workspace resolution should not run for WSGI mount")
+
+    monkeypatch.setattr("mlflow.server.fastapi_app.resolve_workspace_from_header", _raise_if_called)
+
+    client = TestClient(app)
+    resp = client.get("/ping")
+    assert resp.status_code == 200
+    assert resp.text == "ok"
     assert workspace_context.get_request_workspace() is None
 
 
