@@ -52,6 +52,7 @@ export const getDefaultHeaders = (cookieStr: any) => {
   // Forward Authorization header for OAuth/Kubernetes integration
   const authHeader = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('mlflow-auth-header') : null;
 
+  // getActiveWorkspace() returns null if workspaces feature is not enabled
   const workspace = getActiveWorkspace();
 
   return {
@@ -509,6 +510,7 @@ export const fetchAPI = async (url: string, options: FetchAPIOptions = {}) => {
 /**
  * Wrapper around fetch that throws on non-OK responses
  * Returns the Response object for further processing (.json(), .text(), etc.)
+ * Automatically includes default headers (cookies, auth, and workspace).
  *
  * @param input - URL or Request object
  * @param options - Fetch options
@@ -516,8 +518,21 @@ export const fetchAPI = async (url: string, options: FetchAPIOptions = {}) => {
  * @throws PredefinedError (NotFoundError, PermissionError, etc.) if response is not OK
  */
 export async function fetchOrFail(input: RequestInfo | URL, options?: RequestInit): Promise<Response> {
+  let cookieString = '';
+  if (typeof document !== 'undefined' && typeof document.cookie === 'string') {
+    cookieString = document.cookie || '';
+  }
+
+  const fetchOptions: RequestInit = {
+    ...options,
+    headers: {
+      ...getDefaultHeaders(cookieString),
+      ...options?.headers,
+    },
+  };
+
   // eslint-disable-next-line no-restricted-globals -- See go/spog-fetch
-  const response = await fetch(input, options);
+  const response = await fetch(input, fetchOptions);
   if (!response.ok) {
     const error = matchPredefinedErrorFromResponse(response);
     throw error;

@@ -15,6 +15,7 @@ import { Link, useNavigate } from '../../common/utils/RoutingUtils';
 import { useWorkspaces, type Workspace } from '../../common/hooks/useWorkspaces';
 import { getActiveWorkspace, setActiveWorkspace } from '../../common/utils/WorkspaceUtils';
 import { useUpdateWorkspace } from '../../common/hooks/useUpdateWorkspace';
+import Utils from '../../common/utils/Utils';
 
 type WorkspacesHomeViewProps = {
   onCreateWorkspace: () => void;
@@ -89,6 +90,10 @@ const WorkspaceRow = ({ workspace, isLastUsed }: { workspace: Workspace; isLastU
       onSuccess: () => {
         setEditingField(null);
         setEditValue('');
+      },
+      onError: (error: any) => {
+        // Display error notification to user
+        Utils.logErrorAndNotifyUser(error);
       },
     });
   };

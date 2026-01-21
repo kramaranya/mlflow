@@ -20,7 +20,17 @@ const WORKSPACE_PREFIX = '/workspaces/';
 
 const listeners = new Set<(workspace: string | null) => void>();
 
-export const getActiveWorkspace = () => activeWorkspace;
+/**
+ * Get the currently active workspace name.
+ * Returns null if workspaces feature is not enabled or no workspace is selected.
+ */
+export const getActiveWorkspace = () => {
+  // Only return the active workspace if the workspaces feature is enabled
+  if (!getWorkspacesEnabledSync()) {
+    return null;
+  }
+  return activeWorkspace;
+};
 
 export const setActiveWorkspace = (workspace: string | null) => {
   activeWorkspace = workspace;
