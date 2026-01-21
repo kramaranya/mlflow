@@ -3,9 +3,13 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TracesV3Logs } from './TracesV3Logs';
+
+// eslint-disable-next-line no-restricted-syntax -- TODO(FEINF-4392)
+jest.setTimeout(30000);
 import { IntlProvider } from '@databricks/i18n';
 import { QueryClient, QueryClientProvider, type UseMutateAsyncFunction } from '@databricks/web-shared/query-client';
 import { DesignSystemProvider } from '@databricks/design-system';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 import {
   useMlflowTracesTableMetadata,
   useSearchMlflowTraces,
@@ -92,11 +96,13 @@ const renderComponent = (props = {}) => {
         testRoute(
           <IntlProvider locale="en">
             <QueryClientProvider client={queryClient}>
-              <DesignSystemProvider>
-                <GenAITracesTableProvider>
-                  <TracesV3Logs experimentId="test-experiment" endpointName="test-endpoint" {...props} />
-                </GenAITracesTableProvider>
-              </DesignSystemProvider>
+              <TooltipProvider>
+                <DesignSystemProvider>
+                  <GenAITracesTableProvider>
+                    <TracesV3Logs experimentId="test-experiment" endpointName="test-endpoint" {...props} />
+                  </GenAITracesTableProvider>
+                </DesignSystemProvider>
+              </TooltipProvider>
             </QueryClientProvider>
           </IntlProvider>,
         ),

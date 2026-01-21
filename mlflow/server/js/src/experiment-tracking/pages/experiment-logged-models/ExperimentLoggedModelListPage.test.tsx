@@ -8,6 +8,7 @@ import { TestApolloProvider } from '../../../common/utils/TestApolloProvider';
 import { MockedReduxStoreProvider } from '../../../common/utils/TestUtils';
 import { IntlProvider } from 'react-intl';
 import { DesignSystemProvider } from '@databricks/design-system';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 import userEvent from '@testing-library/user-event';
 import { LoggedModelStatusProtoEnum } from '../../types';
 import { first, orderBy } from 'lodash';
@@ -165,13 +166,15 @@ describe('ExperimentLoggedModelListPage', () => {
         <QueryClientProvider client={queryClient}>
           <MockedReduxStoreProvider state={{ entities: { experimentTagsByExperimentId: {} } }}>
             <IntlProvider locale="en">
-              <DesignSystemProvider>
-                <TestRouter
-                  routes={[testRoute(<ExperimentLoggedModelListPage />, '/experiments/:experimentId')]}
-                  history={history}
-                  initialEntries={['/experiments/test-experiment']}
-                />
-              </DesignSystemProvider>
+              <TooltipProvider>
+                <DesignSystemProvider>
+                  <TestRouter
+                    routes={[testRoute(<ExperimentLoggedModelListPage />, '/experiments/:experimentId')]}
+                    history={history}
+                    initialEntries={['/experiments/test-experiment']}
+                  />
+                </DesignSystemProvider>
+              </TooltipProvider>
             </IntlProvider>
           </MockedReduxStoreProvider>
         </QueryClientProvider>

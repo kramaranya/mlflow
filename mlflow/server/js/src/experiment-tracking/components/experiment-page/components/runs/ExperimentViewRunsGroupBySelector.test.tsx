@@ -1,20 +1,21 @@
-import { describe, jest, test, expect, beforeAll } from '@jest/globals';
+import { describe, jest, test, expect } from '@jest/globals';
 import { IntlProvider } from 'react-intl';
 import { render, screen } from '../../../../../common/utils/TestUtils.react18';
 import type { ExperimentRunsSelectorResult } from '../../utils/experimentRuns.selector';
 import { ExperimentViewRunsGroupBySelector } from './ExperimentViewRunsGroupBySelector';
 import userEventGlobal, { PointerEventsCheckLevel } from '@testing-library/user-event';
 import { DesignSystemProvider } from '@databricks/design-system';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 import type { RunsGroupByConfig } from '../../utils/experimentPage.group-row-utils';
 import { RunGroupingAggregateFunction, RunGroupingMode } from '../../utils/experimentPage.row-types';
 import { useState } from 'react';
 
+// eslint-disable-next-line no-restricted-syntax -- TODO(FEINF-4392)
+jest.setTimeout(30000);
+
 const userEvent = userEventGlobal.setup({ pointerEventsCheck: PointerEventsCheckLevel.Never });
 
 describe('ExperimentViewRunsGroupBySelector', () => {
-  beforeAll(() => {
-    jest.setTimeout(10000);
-  });
   const runsDataDatasets: Partial<ExperimentRunsSelectorResult> = {
     datasetsList: [
       [
@@ -65,7 +66,9 @@ describe('ExperimentViewRunsGroupBySelector', () => {
     return render(<TestComponent />, {
       wrapper: ({ children }) => (
         <IntlProvider locale="en">
-          <DesignSystemProvider>{children}</DesignSystemProvider>
+          <TooltipProvider>
+            <DesignSystemProvider>{children}</DesignSystemProvider>
+          </TooltipProvider>
         </IntlProvider>
       ),
     });

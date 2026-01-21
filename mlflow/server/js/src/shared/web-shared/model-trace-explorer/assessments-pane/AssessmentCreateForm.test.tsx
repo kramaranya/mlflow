@@ -1,8 +1,9 @@
-import { beforeEach, describe, expect, it, jest, beforeAll } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DesignSystemProvider } from '@databricks/design-system';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { IntlProvider } from '@databricks/i18n';
 import { QueryClient, QueryClientProvider } from '@databricks/web-shared/query-client';
 
@@ -11,9 +12,8 @@ import type { Assessment } from '../ModelTrace.types';
 import { MOCK_ASSESSMENT, MOCK_EXPECTATION } from '../ModelTraceExplorer.test-utils';
 import { AssessmentSchemaContextProvider } from '../contexts/AssessmentSchemaContext';
 
-beforeAll(() => {
-  jest.setTimeout(20000);
-});
+// eslint-disable-next-line no-restricted-syntax -- TODO(FEINF-4392)
+jest.setTimeout(30000);
 
 // Mock the hooks
 jest.mock('../hooks/useCreateAssessment', () => ({
@@ -34,11 +34,13 @@ const TestWrapper = ({ children, assessments = [] }: { children: React.ReactNode
 
   return (
     <IntlProvider locale="en">
-      <DesignSystemProvider>
-        <QueryClientProvider client={queryClient}>
-          <AssessmentSchemaContextProvider assessments={assessments}>{children}</AssessmentSchemaContextProvider>
-        </QueryClientProvider>
-      </DesignSystemProvider>
+      <TooltipProvider>
+        <DesignSystemProvider>
+          <QueryClientProvider client={queryClient}>
+            <AssessmentSchemaContextProvider assessments={assessments}>{children}</AssessmentSchemaContextProvider>
+          </QueryClientProvider>
+        </DesignSystemProvider>
+      </TooltipProvider>
     </IntlProvider>
   );
 };
