@@ -13,7 +13,9 @@ import {
 import { useCallback, useMemo } from 'react';
 import { useGetExperimentRunColor } from '../experiment-page/hooks/useExperimentRunColor';
 import { useIntl } from '@databricks/i18n';
-import Routes from '../../routes';
+import Routes, { RoutePaths } from '../../routes';
+import { matchPath, useLocation, useNavigate } from '../../../common/utils/RoutingUtils';
+import { extractWorkspaceFromPathname } from '../../../common/utils/WorkspaceUtils';
 import {
   useGenAiExperimentRunsForComparison,
   COMPARE_TO_RUN_DROPDOWN_COMPONENT_ID,
@@ -70,20 +72,33 @@ export const EvaluationRunCompareSelector = ({
   const currentRunInfo = experimentRunInfos?.find((runInfo) => runInfo.runUuid === currentRunUuid);
   const compareToRunInfo = experimentRunInfos?.find((runInfo) => runInfo.runUuid === compareToRunUuid);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const defaultSetCurrentRunUuid = useCallback(
     (runUuid: string) => {
-      const link = Routes.getRunPageRoute(experimentId, runUuid) + '/evaluations';
-      // Propagate all the current URL query params.
-      const currentParams = new URLSearchParams(window.location.search);
+      const workspace = extractWorkspaceFromPathname(location.pathname);
+      const workspacePrefix = workspace ? `/workspaces/${encodeURIComponent(workspace)}` : '';
+      const pathnameWithoutWorkspace =
+        workspacePrefix && location.pathname.startsWith(workspacePrefix)
+          ? location.pathname.slice(workspacePrefix.length) || '/'
+          : location.pathname;
 
-      const newUrl = new URL(link, window.location.origin);
-      currentParams.forEach((value, key) => {
-        newUrl.searchParams.set(key, value);
-      });
+      const runPageMatch =
+        matchPath(RoutePaths.runPageWithTab, pathnameWithoutWorkspace) ??
+        matchPath(RoutePaths.runPage, pathnameWithoutWorkspace);
+      const experimentIdFromPath = runPageMatch?.params?.['experimentId'];
+      const tabPath = runPageMatch?.params?.['*'];
 
-      window.location.href = newUrl.toString();
+      const nextPath = experimentIdFromPath
+        ? tabPath
+          ? Routes.getRunPageTabRoute(experimentIdFromPath, runUuid, tabPath)
+          : Routes.getRunPageRoute(experimentIdFromPath, runUuid)
+        : Routes.getRunPageRoute(experimentId, runUuid);
+
+      navigate({ pathname: nextPath, search: location.search });
     },
-    [experimentId],
+    [experimentId, location.pathname, location.search, navigate],
   );
 
   const setCurrentRunUuid = setCurrentRunUuidProp ?? defaultSetCurrentRunUuid;
