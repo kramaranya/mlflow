@@ -1,0 +1,14 @@
+# Syft configuration for SBOM generation.
+
+exclude:
+  - ./.github/**
+  - ./docs/**
+  - ./examples/**
+  - ./tests/**
+  - ./dev/**
+  - ./bin/**
+  - ./docker/**
+  - ./docker-compose/**
+  - ./changelogs/**
+  - ./mlflow/server/js/node_modules/**
+  - ./mlflow/server/js/build/**
