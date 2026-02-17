@@ -1,8 +1,8 @@
 /**
- * MlflowExperimentWrapper
+ * MlflowWrapperBase
  *
- * Federated entry point for MLflow experiment tracking in ODH dashboard.
- * Provides all MLflow-specific context and renders experiment tracking routes.
+ * Federated entry point for MLflow in ODH dashboard.
+ * Provides all MLflow-specific context and renders routes.
  *
  * react-router is NOT shared with the host because the host uses v7 while
  * MLflow is written for v6 (incompatible major versions). Instead, we provide
@@ -16,7 +16,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { ModularArchContextProvider, DeploymentMode } from 'mod-arch-core';
 import type { ModularArchConfig } from 'mod-arch-core';
-import { BrowserRouter, Routes, useSearchParams } from '../../common/utils/RoutingUtils';
+import { BrowserRouter, useSearchParams } from '../../common/utils/RoutingUtils';
 import { ApolloProvider } from '@mlflow/mlflow/src/common/utils/graphQLHooks';
 import { extractWorkspaceFromSearchParams, setActiveWorkspace } from '../../workspaces/utils/WorkspaceUtils';
 
@@ -47,13 +47,11 @@ import { ThemeProvider as EmotionThemeProvider } from '@emotion/react';
 import { telemetryClient } from '../../telemetry';
 import { useMLflowDarkTheme } from '../../common/hooks/useMLflowDarkTheme';
 import { useEmbeddedLinkInterceptor } from '../../common/hooks/useEmbeddedLinkInterceptor';
-import { getExperimentTrackingRouteElements } from './experimentTrackingRoutes';
-import { BreadcrumbReporter } from './BreadcrumbReporter';
 
-export interface MlflowExperimentWrapperProps {
-  /** Called whenever the in-app route changes with updated breadcrumb segments.
-   *  Each segment has { label: string; path: string }. */
-  onBreadcrumbChange?: (segments: { label: string; path: string }[]) => void;
+export interface MlflowFederatedShellProps {
+  basename: string;
+  breadcrumbReporter?: React.ReactNode;
+  children: React.ReactNode;
 }
 
 /**
@@ -72,18 +70,13 @@ const WorkspaceSync: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   return <>{children}</>;
 };
 
-// The host mounts this component at /develop-train/mlflow/experiments/*.
-// Our own BrowserRouter needs this as its basename so that relative paths
-// within MLflow routes resolve correctly.
-const MLFLOW_BASENAME = '/develop-train/mlflow/experiments';
-
 const modularArchConfig: ModularArchConfig = {
   deploymentMode: DeploymentMode.Federated,
   URL_PREFIX: '/mlflow',
   BFF_API_VERSION: 'v1',
 };
 
-const MlflowExperimentWrapper: React.FC<MlflowExperimentWrapperProps> = ({ onBreadcrumbChange }) => {
+const MlflowWrapperBase: React.FC<MlflowFederatedShellProps> = ({ basename, breadcrumbReporter, children }) => {
   // Intercept same-origin target="_blank" links to navigate in-place
   // instead of opening new tabs outside the dashboard shell.
   useEmbeddedLinkInterceptor();
@@ -100,7 +93,6 @@ const MlflowExperimentWrapper: React.FC<MlflowExperimentWrapperProps> = ({ onBre
   const intl = useI18nInit();
   const apolloClient = useMemo(() => createApolloClient(), []);
   const queryClient = useMemo(() => new QueryClient(), []);
-  const routeElements = useMemo(() => getExperimentTrackingRouteElements(), []);
   const [isDarkTheme, setIsDarkTheme] = useMLflowDarkTheme();
   const getPopupContainer = useCallback(() => document.body, []);
   const logObservabilityEvent = useCallback((event: any) => {
@@ -128,12 +120,10 @@ const MlflowExperimentWrapper: React.FC<MlflowExperimentWrapperProps> = ({ onBre
                       <DarkThemeProvider setIsDarkTheme={setIsDarkTheme}>
                         <QueryClientProvider client={queryClient}>
                           <ServerInfoProvider>
-                            <BrowserRouter basename={MLFLOW_BASENAME}>
+                            <BrowserRouter basename={basename}>
                               <WorkspaceSync>
-                                <BreadcrumbReporter onBreadcrumbChange={onBreadcrumbChange} />
-                                <React.Suspense fallback={<LegacySkeleton />}>
-                                  <Routes>{routeElements}</Routes>
-                                </React.Suspense>
+                                {breadcrumbReporter}
+                                <React.Suspense fallback={<LegacySkeleton />}>{children}</React.Suspense>
                               </WorkspaceSync>
                             </BrowserRouter>
                           </ServerInfoProvider>
@@ -151,4 +141,4 @@ const MlflowExperimentWrapper: React.FC<MlflowExperimentWrapperProps> = ({ onBre
   );
 };
 
-export default MlflowExperimentWrapper;
+export default MlflowWrapperBase;

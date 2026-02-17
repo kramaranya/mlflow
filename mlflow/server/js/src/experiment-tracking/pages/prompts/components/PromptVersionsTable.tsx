@@ -18,6 +18,9 @@ import { PromptVersionsTableMode } from '../utils';
 import { PromptVersionsTableCombinedCell } from './PromptVersionsTableCombinedCell';
 import { PromptVersionsDiffSelectorButton } from './PromptVersionsDiffSelectorButton';
 
+const coreRowModel = getCoreRowModel<RegisteredPromptVersion>();
+const EMPTY_VERSIONS: RegisteredPromptVersion[] = [];
+
 type PromptVersionsTableColumnDef = ColumnDef<RegisteredPromptVersion>;
 
 export const PromptVersionsTable = ({
@@ -65,10 +68,10 @@ export const PromptVersionsTable = ({
   const table = useReactTable(
     'mlflow/server/js/src/experiment-tracking/pages/prompts/components/PromptVersionsTable.tsx',
     {
-      data: promptVersions ?? [],
+      data: promptVersions ?? EMPTY_VERSIONS,
       getRowId: (row) => row.version,
       columns,
-      getCoreRowModel: getCoreRowModel(),
+      getCoreRowModel: coreRowModel,
       meta: { showEditAliasesModal, aliasesByVersion, registeredPrompt },
     },
   );
