@@ -12,14 +12,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, matchPath } from '../../common/utils/RoutingUtils';
 import { useSelector } from 'react-redux';
-import { useQueryClient } from '../../common/utils/reactQueryHooks';
+import { useQueryClient } from '@databricks/web-shared/query-client';
 
-export interface BreadcrumbSegment {
-  /** Display label for the breadcrumb item. */
-  label: string;
-  /** Path relative to the MLflow basename, e.g. "/experiments/3/runs". */
-  path: string;
-}
+import type { BreadcrumbSegment } from '../const';
 
 interface BreadcrumbReporterProps {
   onBreadcrumbChange?: (segments: BreadcrumbSegment[]) => void;

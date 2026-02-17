@@ -1,6 +1,6 @@
 import { ScrollablePageWrapper } from '@mlflow/mlflow/src/common/components/ScrollablePageWrapper';
 import { usePromptsListQuery } from './hooks/usePromptsListQuery';
-import { Alert, Button, Header, Spacer } from '@databricks/design-system';
+import { Alert, Button, Header, Spacer, useDesignSystemTheme } from '@databricks/design-system';
 import { FormattedMessage } from 'react-intl';
 import { useState } from 'react';
 import { PromptsListFilters } from './components/PromptsListFilters';
@@ -15,6 +15,7 @@ import { PromptPageErrorHandler } from './components/PromptPageErrorHandler';
 import { useDebounce } from 'use-debounce';
 import { shouldEnableWorkspaces } from '../../../common/utils/FeatureUtils';
 import { extractWorkspaceFromSearchParams } from '../../../workspaces/utils/WorkspaceUtils';
+import { useIsIntegrated } from '../../../common/utils/embedUtils';
 
 export type PromptsListComponentId =
   | 'mlflow.prompts.global.list.create'
@@ -54,6 +55,8 @@ const EXPERIMENT_COMPONENT_IDS: PromptsListComponentIds = {
 
 const PromptsPage = ({ experimentId }: { experimentId?: string } = {}) => {
   const [searchParams] = useSearchParams();
+  const isEmbedded = useIsIntegrated();
+  const { theme } = useDesignSystemTheme();
   const workspacesEnabled = shouldEnableWorkspaces();
   const workspaceFromUrl = extractWorkspaceFromSearchParams(searchParams);
   // Only show creation buttons when: workspaces are disabled OR a workspace is selected
@@ -75,28 +78,37 @@ const PromptsPage = ({ experimentId }: { experimentId?: string } = {}) => {
     onSuccess: ({ promptName }) => navigate(Routes.getPromptDetailsPageRoute(promptName, experimentId)),
   });
 
+  const createButton = showCreationButtons && (
+    <Button componentId={componentIds.create} type="primary" onClick={openCreateVersionModal}>
+      <FormattedMessage
+        defaultMessage="Create prompt"
+        description="Label for the create prompt button on the registered prompts page"
+      />
+    </Button>
+  );
+
   return (
     <ScrollablePageWrapper css={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       <Spacer shrinks={false} />
-      <Header
-        title={<FormattedMessage defaultMessage="Prompts" description="Header title for the registered prompts page" />}
-        buttons={
-          showCreationButtons && (
-            <Button componentId={componentIds.create} type="primary" onClick={openCreateVersionModal}>
-              <FormattedMessage
-                defaultMessage="Create prompt"
-                description="Label for the create prompt button on the registered prompts page"
-              />
-            </Button>
-          )
-        }
-      />
-      <Spacer shrinks={false} />
+      {!isEmbedded && (
+        <>
+          <Header
+            title={
+              <FormattedMessage defaultMessage="Prompts" description="Header title for the registered prompts page" />
+            }
+            buttons={createButton}
+          />
+          <Spacer shrinks={false} />
+        </>
+      )}
       <div css={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <PromptsListFilters
           searchFilter={searchFilter}
           onSearchFilterChange={setSearchFilter}
           componentId={componentIds.search}
+          actions={
+            isEmbedded && <div css={{ marginLeft: 'auto', display: 'flex', gap: theme.spacing.sm }}>{createButton}</div>
+          }
         />
         {error?.message && (
           <>

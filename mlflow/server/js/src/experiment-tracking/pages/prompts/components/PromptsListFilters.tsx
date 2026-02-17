@@ -7,10 +7,12 @@ export const PromptsListFilters = ({
   searchFilter,
   onSearchFilterChange,
   componentId,
+  actions,
 }: {
   searchFilter: string;
   onSearchFilterChange: (searchFilter: string) => void;
   componentId: PromptsListComponentId;
+  actions?: React.ReactNode;
 }) => {
   return (
     <TableFilterLayout>
@@ -21,6 +23,7 @@ export const PromptsListFilters = ({
         onChange={(e) => onSearchFilterChange(e.target.value)}
         suffix={<ModelSearchInputHelpTooltip exampleEntityName="my-prompt-name" />}
       />
+      {actions}
     </TableFilterLayout>
   );
 };

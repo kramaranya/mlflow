@@ -20,7 +20,8 @@ const moduleFederationConfig = {
     },
   },
   exposes: {
-    './MlflowExperimentWrapper': './src/odh/wrappers/MlflowExperimentWrapper',
+    './MlflowExperimentWrapper': './src/odh/experiments/MlflowExperimentWrapper',
+    './MlflowPromptsWrapper': './src/odh/prompts/MlflowPromptsWrapper',
   },
   runtime: false,
   dts: true,
