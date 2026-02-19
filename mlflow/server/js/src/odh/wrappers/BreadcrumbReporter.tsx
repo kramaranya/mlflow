@@ -25,7 +25,7 @@ interface BreadcrumbReporterProps {
   onBreadcrumbChange?: (segments: BreadcrumbSegment[]) => void;
 }
 
-const EXPERIMENTS_CRUMB: BreadcrumbSegment = { label: 'Experiments', path: '/experiments' };
+const EXPERIMENTS_CRUMB: BreadcrumbSegment = { label: 'Experiments', path: '/' };
 
 /**
  * Try to resolve an experiment name from the Redux store.
@@ -122,27 +122,27 @@ const buildSegments = (
   loggedModelName: string | undefined,
 ): BreadcrumbSegment[] => {
   // Experiment list / index — no breadcrumbs
-  if (pathname === '/' || pathname === '/experiments' || pathname === '') {
+  if (pathname === '/' || pathname === '') {
     return [];
   }
 
-  // Run page: /experiments/:id/runs/:runUuid(/*) — 3 levels
-  const runMatch = matchPath('/experiments/:experimentId/runs/:runUuid/*', pathname);
+  // Run page: /:id/runs/:runUuid(/*) — 3 levels
+  const runMatch = matchPath('/:experimentId/runs/:runUuid/*', pathname);
   if (runMatch) {
     const { experimentId, runUuid } = runMatch.params as { experimentId: string; runUuid: string };
     const expLabel = experimentName || `Experiment ${experimentId}`;
     const rLabel = runName || runUuid;
     return [
       EXPERIMENTS_CRUMB,
-      { label: expLabel, path: `/experiments/${experimentId}` },
-      { label: rLabel, path: `/experiments/${experimentId}/runs/${runUuid}` },
+      { label: expLabel, path: `/${experimentId}` },
+      { label: rLabel, path: `/${experimentId}/runs/${runUuid}` },
     ];
   }
 
-  // Logged model detail: /experiments/:id/models/:modelId(/:tabName) — 3 levels
+  // Logged model detail: /:id/models/:modelId(/:tabName) — 3 levels
   const modelMatch =
-    matchPath('/experiments/:experimentId/models/:loggedModelId/:tabName', pathname) ||
-    matchPath('/experiments/:experimentId/models/:loggedModelId', pathname);
+    matchPath('/:experimentId/models/:loggedModelId/:tabName', pathname) ||
+    matchPath('/:experimentId/models/:loggedModelId', pathname);
   if (modelMatch) {
     const { experimentId, loggedModelId } = modelMatch.params as {
       experimentId: string;
@@ -152,18 +152,17 @@ const buildSegments = (
     const mLabel = loggedModelName || loggedModelId;
     return [
       EXPERIMENTS_CRUMB,
-      { label: expLabel, path: `/experiments/${experimentId}` },
-      { label: mLabel, path: `/experiments/${experimentId}/models/${loggedModelId}` },
+      { label: expLabel, path: `/${experimentId}` },
+      { label: mLabel, path: `/${experimentId}/models/${loggedModelId}` },
     ];
   }
 
   // Experiment page (any tab / sub-tab) — 2 levels, tab does NOT appear in breadcrumb
-  const expMatch =
-    matchPath('/experiments/:experimentId/*', pathname) || matchPath('/experiments/:experimentId', pathname);
+  const expMatch = matchPath('/:experimentId/*', pathname) || matchPath('/:experimentId', pathname);
   if (expMatch) {
     const { experimentId } = expMatch.params as { experimentId: string };
     const expLabel = experimentName || `Experiment ${experimentId}`;
-    return [EXPERIMENTS_CRUMB, { label: expLabel, path: `/experiments/${experimentId}` }];
+    return [EXPERIMENTS_CRUMB, { label: expLabel, path: `/${experimentId}` }];
   }
 
   // Direct run page (no experiment context): /runs/:runUuid
@@ -178,23 +177,20 @@ const buildSegments = (
   if (matchPath('/compare-runs', pathname)) {
     const expIds = parseQueryParam(search, 'experiments');
     if (expIds.length === 1) {
-      // Single experiment context — show experiment as middle crumb
       const expLabel = experimentName || `Experiment ${expIds[0]}`;
       return [
         EXPERIMENTS_CRUMB,
-        { label: expLabel, path: `/experiments/${expIds[0]}` },
+        { label: expLabel, path: `/${expIds[0]}` },
         { label: 'Compare Runs', path: `${pathname}${search}` },
       ];
     }
     if (expIds.length > 1) {
-      // Multiple experiments — show Compare Experiments as middle crumb
       return [
         EXPERIMENTS_CRUMB,
         { label: 'Compare Experiments', path: `/compare-experiments/s?experiments=${JSON.stringify(expIds)}` },
         { label: 'Compare Runs', path: `${pathname}${search}` },
       ];
     }
-    // No experiment context
     return [EXPERIMENTS_CRUMB, { label: 'Compare Runs', path: `${pathname}${search}` }];
   }
   if (matchPath('/compare-experiments/:searchString', pathname)) {
@@ -227,12 +223,12 @@ export const BreadcrumbReporter: React.FC<BreadcrumbReporterProps> = ({ onBreadc
   const { pathname, search } = useLocation();
 
   // Extract IDs from the pathname for entity name lookups
-  const expMatch = matchPath('/experiments/:experimentId/*', pathname);
-  const runMatch = matchPath('/experiments/:experimentId/runs/:runUuid/*', pathname);
+  const expMatch = matchPath('/:experimentId/*', pathname);
+  const runMatch = matchPath('/:experimentId/runs/:runUuid/*', pathname);
   const directRunMatch = matchPath('/runs/:runUuid', pathname);
   const modelDetailMatch =
-    matchPath('/experiments/:experimentId/models/:loggedModelId/:tabName', pathname) ||
-    matchPath('/experiments/:experimentId/models/:loggedModelId', pathname);
+    matchPath('/:experimentId/models/:loggedModelId/:tabName', pathname) ||
+    matchPath('/:experimentId/models/:loggedModelId', pathname);
 
   // For compare-runs, the experiment ID is in the query param, not the path
   const compareRunsExpIds = matchPath('/compare-runs', pathname) ? parseQueryParam(search, 'experiments') : [];

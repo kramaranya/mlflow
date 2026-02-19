@@ -1591,7 +1591,8 @@ body:has(.mlflow-federated) > .du-bois-light-modal-root,
 body:has(.mlflow-federated) > .du-bois-dark-modal-root,
 body:has(.mlflow-federated) > .du-bois-light-dropdown,
 body:has(.mlflow-federated) > .du-bois-dark-dropdown {
-  a[href*='/models/']:not([href*='/experiments/']) {
+  a[href*='/models/']:not([href*='/experiments/']),
+  a[href*='/experiments/models/'] {
     pointer-events: none !important;
     cursor: default !important;
     color: inherit !important;
