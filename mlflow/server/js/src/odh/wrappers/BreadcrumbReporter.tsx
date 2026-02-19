@@ -27,6 +27,8 @@ interface BreadcrumbReporterProps {
 
 const EXPERIMENTS_CRUMB: BreadcrumbSegment = { label: 'Experiments', path: '/' };
 
+const isExpId = (id: string | undefined) => Boolean(id && /^\d+$/.test(id));
+
 /**
  * Try to resolve an experiment name from the Redux store.
  * The experiment is put into Redux by useExperimentReduxStoreCompat
@@ -128,7 +130,7 @@ const buildSegments = (
 
   // Run page: /:id/runs/:runUuid(/*) — 3 levels
   const runMatch = matchPath('/:experimentId/runs/:runUuid/*', pathname);
-  if (runMatch) {
+  if (runMatch && isExpId(runMatch.params.experimentId)) {
     const { experimentId, runUuid } = runMatch.params as { experimentId: string; runUuid: string };
     const expLabel = experimentName || `Experiment ${experimentId}`;
     const rLabel = runName || runUuid;
@@ -143,7 +145,7 @@ const buildSegments = (
   const modelMatch =
     matchPath('/:experimentId/models/:loggedModelId/:tabName', pathname) ||
     matchPath('/:experimentId/models/:loggedModelId', pathname);
-  if (modelMatch) {
+  if (modelMatch && isExpId(modelMatch.params.experimentId)) {
     const { experimentId, loggedModelId } = modelMatch.params as {
       experimentId: string;
       loggedModelId: string;
@@ -159,7 +161,7 @@ const buildSegments = (
 
   // Experiment page (any tab / sub-tab) — 2 levels, tab does NOT appear in breadcrumb
   const expMatch = matchPath('/:experimentId/*', pathname) || matchPath('/:experimentId', pathname);
-  if (expMatch) {
+  if (expMatch && isExpId(expMatch.params.experimentId)) {
     const { experimentId } = expMatch.params as { experimentId: string };
     const expLabel = experimentName || `Experiment ${experimentId}`;
     return [EXPERIMENTS_CRUMB, { label: expLabel, path: `/${experimentId}` }];
@@ -234,9 +236,14 @@ export const BreadcrumbReporter: React.FC<BreadcrumbReporterProps> = ({ onBreadc
   const compareRunsExpIds = matchPath('/compare-runs', pathname) ? parseQueryParam(search, 'experiments') : [];
 
   const experimentId =
-    expMatch?.params?.experimentId || (compareRunsExpIds.length === 1 ? compareRunsExpIds[0] : undefined);
-  const runUuid = runMatch?.params?.runUuid || directRunMatch?.params?.runUuid;
-  const loggedModelId = modelDetailMatch?.params?.loggedModelId;
+    (isExpId(expMatch?.params?.experimentId) ? expMatch?.params?.experimentId : undefined) ||
+    (compareRunsExpIds.length === 1 ? compareRunsExpIds[0] : undefined);
+  const runUuid =
+    (isExpId(runMatch?.params?.experimentId) ? runMatch?.params?.runUuid : undefined) ||
+    directRunMatch?.params?.runUuid;
+  const loggedModelId = isExpId(modelDetailMatch?.params?.experimentId)
+    ? modelDetailMatch?.params?.loggedModelId
+    : undefined;
 
   const experimentName = useExperimentName(experimentId);
   const runName = useRunName(runUuid);
