@@ -22,6 +22,7 @@ import { ExperimentViewInferredKindModal } from '../../components/experiment-pag
 import Routes, { RoutePaths } from '../../routes';
 import { useGetExperimentPageActiveTabByRoute } from '../../components/experiment-page/hooks/useGetExperimentPageActiveTabByRoute';
 import { useNavigateToExperimentPageTab } from '../../components/experiment-page/hooks/useNavigateToExperimentPageTab';
+import { useIsIntegrated } from '@mlflow/mlflow/src/common/utils/embedUtils';
 import { ExperimentPageSubTabSelector } from './ExperimentPageSubTabSelector';
 import { ExperimentPageSideNav, ExperimentPageSideNavSkeleton } from './side-nav/ExperimentPageSideNav';
 
@@ -68,6 +69,7 @@ const ExperimentPageTabsImpl = () => {
   const isExperimentKindInferenceEnabled = Boolean(experiment && !experimentKind);
   const shouldShowExperimentPageSideTabs = shouldEnableExperimentPageSideTabs();
   const enableWorkflowBasedNavigation = shouldEnableWorkflowBasedNavigation();
+  const isEmbedded = useIsIntegrated();
 
   const {
     inferredExperimentKind,
@@ -90,14 +92,14 @@ const ExperimentPageTabsImpl = () => {
   // However, if experiment kind inference is enabled (no kind tag exists), we should
   // let the inference process handle navigation instead to avoid race conditions.
   useNavigateToExperimentPageTab({
-    enabled: matchedExperimentPageWithoutTab && !isExperimentKindInferenceEnabled,
+    enabled: !isEmbedded && matchedExperimentPageWithoutTab && !isExperimentKindInferenceEnabled,
     experimentId,
   });
 
   useEffect(() => {
     // If the experiment kind is inferred, we want to navigate to the appropriate tab.
     // Should fire once when the experiment kind is inferred.
-    if (inferredExperimentPageTab) {
+    if (!isEmbedded && inferredExperimentPageTab) {
       navigate(Routes.getExperimentPageTabRoute(experimentId, inferredExperimentPageTab), { replace: true });
     }
     // `navigate` reference changes whenever navigate is called, causing the
@@ -190,13 +192,17 @@ const ExperimentPageTabsImpl = () => {
           <Spacer size="sm" shrinks={false} />
         </>
       )}
-      {shouldShowExperimentPageSideTabs && !enableWorkflowBasedNavigation ? (
+      {shouldShowExperimentPageSideTabs && (!enableWorkflowBasedNavigation || isEmbedded) ? (
         <div css={{ display: 'flex', flex: 1, minWidth: 0, minHeight: 0 }}>
           {loadingExperiment || inferringExperimentType ? (
             <ExperimentPageSideNavSkeleton />
           ) : (
             <ExperimentPageSideNav
-              experimentKind={experimentKind ?? inferredExperimentKind ?? ExperimentKind.CUSTOM_MODEL_DEVELOPMENT}
+              experimentKind={
+                isEmbedded
+                  ? ExperimentKind.CUSTOM_MODEL_DEVELOPMENT
+                  : (experimentKind ?? inferredExperimentKind ?? ExperimentKind.CUSTOM_MODEL_DEVELOPMENT)
+              }
               activeTab={activeTab}
             />
           )}
