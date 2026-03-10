@@ -1666,10 +1666,6 @@
     "defaultMessage": "Average of {count} values",
     "description": "Tooltip for numeric assessment average in session header"
   },
-  "9qvqIZ": {
-    "defaultMessage": "No settings available",
-    "description": "No settings available title"
-  },
   "9tCd/m": {
     "defaultMessage": "AI Gateway",
     "description": "Header title for the AI Gateway configuration page"
@@ -5555,6 +5551,10 @@
     "defaultMessage": "Click into an individual run to see all models associated with it",
     "description": "MLflow experiment detail page > runs table > tooltip on ML \"Models\" column header"
   },
+  "c1it6D": {
+    "defaultMessage": "Select your theme preference between light and dark.",
+    "description": "Description for the theme setting in the settings page"
+  },
   "c1jD8u": {
     "defaultMessage": "Create an evaluation dataset",
     "description": "Evaluation datasets empty state title"
@@ -6571,6 +6571,10 @@
     "defaultMessage": "ID",
     "description": "Label for the ID section"
   },
+  "ioD6Ho": {
+    "defaultMessage": "Dark",
+    "description": "Dark theme label"
+  },
   "iqlzHb": {
     "defaultMessage": "Loading API keys...",
     "description": "Loading message for API keys list"
@@ -6934,6 +6938,10 @@
   "lNO3kK": {
     "defaultMessage": "No parameters to display.",
     "description": "Text shown when there are no parameters to display"
+  },
+  "lNv2QR": {
+    "defaultMessage": "Light",
+    "description": "Light theme label"
   },
   "lPNTq7": {
     "defaultMessage": "Metrics ({length})",
@@ -7330,6 +7338,10 @@
   "o0NwZU": {
     "defaultMessage": "Quality metrics computed by scorers.",
     "description": "Description for the scorer insights section"
+  },
+  "o1dN9r": {
+    "defaultMessage": "Theme preference",
+    "description": "Theme settings title"
   },
   "o21MFS": {
     "defaultMessage": "Invalid log value",

@@ -1,4 +1,4 @@
-import { Button, Modal, Spinner, Typography, useDesignSystemTheme } from '@databricks/design-system';
+import { Button, Modal, Spinner, Switch, Typography, useDesignSystemTheme } from '@databricks/design-system';
 import { FormattedMessage, useIntl } from '@databricks/i18n';
 import { useCallback, useState } from 'react';
 import { fetchEndpointRaw, HTTPMethods } from '../common/utils/FetchUtils';
@@ -11,6 +11,13 @@ const SettingsPage = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const { setIsDarkTheme } = useDarkThemeContext();
   const isDarkTheme = theme.isDarkMode;
+
+  const handleThemeToggle = useCallback(
+    (checked: boolean) => {
+      setIsDarkTheme(checked);
+    },
+    [setIsDarkTheme],
+  );
 
   const handleClearAllDemoData = useCallback(async () => {
     setIsCleaningDemo(true);
@@ -35,9 +42,27 @@ const SettingsPage = () => {
       <div css={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 600 }}>
         <div css={{ display: 'flex', flexDirection: 'column', marginRight: theme.spacing.lg }}>
           <Typography.Title level={4}>
-            <FormattedMessage defaultMessage="No settings available" description="No settings available title" />
+            <FormattedMessage defaultMessage="Theme preference" description="Theme settings title" />
           </Typography.Title>
+          <Typography.Text>
+            <FormattedMessage
+              defaultMessage="Select your theme preference between light and dark."
+              description="Description for the theme setting in the settings page"
+            />
+          </Typography.Text>
         </div>
+        <Switch
+          componentId="mlflow.settings.theme.toggle-switch"
+          checked={isDarkTheme}
+          onChange={handleThemeToggle}
+          label={
+            isDarkTheme
+              ? intl.formatMessage({ defaultMessage: 'Dark', description: 'Dark theme label' })
+              : intl.formatMessage({ defaultMessage: 'Light', description: 'Light theme label' })
+          }
+          activeLabel={intl.formatMessage({ defaultMessage: 'Dark', description: 'Dark theme label' })}
+          inactiveLabel={intl.formatMessage({ defaultMessage: 'Light', description: 'Light theme label' })}
+        />
       </div>
 
       <div

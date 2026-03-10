@@ -566,8 +566,8 @@
     overflow: visible;
     width: fit-content;
 
-    /* Workflow type switch — styled as PF toggle group */
-    [class*='WorkflowSwitch'] {
+    /* Workflow type switch — matches only a toggle group with both pressed and unpressed options */
+    div:has(> div[role='button'][aria-pressed='true']):has(> div[role='button'][aria-pressed='false']) {
       border: none !important;
       background-color: transparent;
 
@@ -617,13 +617,13 @@
       }
     }
 
-    /* Sidebar section items */
-    li[class*='SidebarExperimentItems'] {
-      padding-left: var(--pf-t--global--spacer--sm);
+    /* Sidebar section labels — the only <li> in the nav without an <a> link */
+    li:not(:has(a)) {
+      padding-left: var(--pf-t--global--spacer--sm) !important;
       span {
-        font-weight: var(--pf-t--global--font--weight--heading--default);
-        font-size: var(--pf-t--global--font--size--body--default);
-        color: var(--pf-t--global--text--color--regular);
+        font-weight: var(--pf-t--global--font--weight--heading--default) !important;
+        font-size: var(--pf-t--global--font--size--body--default) !important;
+        color: var(--pf-t--global--text--color--regular) !important;
       }
     }
   }
@@ -965,27 +965,20 @@
     }
   }
 
-  /* Typeahead combobox controls */
+  /* Typeahead combobox controls
+     NOTE: aria-label values below ('toggle menu', 'Clear selection') are
+     hardcoded in @databricks/design-system internals (TypeaheadComboboxToggleButton,
+     ClearSelectionButton) and are not localized. If the design system ever changes
+     these labels, these selectors will need updating. */
   .du-bois-light-typeahead-combobox,
   .du-bois-dark-typeahead-combobox {
-    [class*='TypeaheadComboboxControls'] {
+    div:has(> button[aria-label='toggle menu']) {
       display: flex;
       align-items: center;
     }
 
     span[role='button'][aria-label='Clear selection'] {
       padding-top: var(--pf-t--global--spacer--xs);
-    }
-  }
-
-  /* Typeahead combobox dropdown */
-  ul[role='listbox'][class*='getTypeaheadComboboxMenuStyles'] {
-    width: fit-content !important;
-    min-width: fit-content !important;
-    max-width: none !important;
-
-    > div {
-      width: fit-content !important;
     }
   }
 
@@ -1687,9 +1680,7 @@
 
   /* Form error/validation text */
   .du-bois-light-form-item-explain-error,
-  .du-bois-dark-form-item-explain-error,
-  [class*='form-item-explain-error'],
-  [class*='getValidationStateStyles'][class*='error'] {
+  .du-bois-dark-form-item-explain-error {
     font-size: var(--pf-t--global--font--size--body--sm);
     font-weight: var(--pf-t--global--font--weight--body--bold);
     line-height: var(--pf-t--global--font--line-height--body);
@@ -1712,8 +1703,8 @@
   }
 
   /* Fix button clipping in EvaluationArtifactCompareView */
-  div:has(> .du-bois-light-dialogcombobox[class*='EvaluationArtifactCompareViewImpl']),
-  div:has(> .du-bois-dark-dialogcombobox[class*='EvaluationArtifactCompareViewImpl']) {
+  div:has(> .du-bois-light-dialogcombobox:has([data-testid='dropdown-tables'])),
+  div:has(> .du-bois-dark-dialogcombobox:has([data-testid='dropdown-tables'])) {
     height: auto !important;
     overflow: visible !important;
   }
