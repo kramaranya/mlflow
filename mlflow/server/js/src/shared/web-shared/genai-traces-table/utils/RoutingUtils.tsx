@@ -282,6 +282,17 @@ const NavLink = React.forwardRef<
   return <NavLinkDirect ref={ref} to={finalTo} {...rest} />;
 });
 
+export const createMLflowRoutePath = (routePath: string) => {
+  // In federated mode the BrowserRouter basename already ends with
+  // "/experiments", so absolute paths like "/experiments/:id" would
+  // produce a doubled segment. Strip the prefix so links resolve
+  // correctly against the basename.
+  if (process.env['DEPLOYMENT_MODE'] === 'federated' && routePath.startsWith('/experiments')) {
+    return routePath.slice('/experiments'.length) || '/';
+  }
+  return routePath;
+};
+
 export {
   // React Router V6 API exports
   BrowserRouter,

@@ -13,7 +13,7 @@
  * so that a project switch fully remounts the tree, guaranteeing a clean slate
  * (fresh React Query cache, Apollo cache, BrowserRouter, and component state).
  */
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ModularArchContextProvider, DeploymentMode } from 'mod-arch-core';
 import type { ModularArchConfig } from 'mod-arch-core';
 import { BrowserRouter, useSearchParams } from '../../common/utils/RoutingUtils';
@@ -55,6 +55,10 @@ export interface MlflowFederatedShellProps {
   children: React.ReactNode;
 }
 
+const FEDERATED_PORTAL_CONTAINER_ATTR = 'data-mlflow-federated-portal-container';
+const PF_SHELL_ROOT_CLASS_NAME = 'pf-shell-root';
+const DARK_MODE_CLASS_NAME = 'dark-mode';
+
 /**
  * Syncs the workspace query param from the URL to the module-level
  * activeWorkspace variable used by FetchUtils to set X-MLFLOW-WORKSPACE.
@@ -78,6 +82,24 @@ const modularArchConfig: ModularArchConfig = {
 };
 
 const MlflowWrapperBase: React.FC<MlflowFederatedShellProps> = ({ basename, breadcrumbReporter, children }) => {
+  const portalContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Add a dedicated portal container for federated mode.
+  useEffect(() => {
+    const portalContainer = document.createElement('div');
+    portalContainer.classList.add(PF_SHELL_ROOT_CLASS_NAME);
+    portalContainer.setAttribute(FEDERATED_PORTAL_CONTAINER_ATTR, 'true');
+    document.body.appendChild(portalContainer);
+    portalContainerRef.current = portalContainer;
+
+    return () => {
+      if (portalContainerRef.current === portalContainer) {
+        portalContainerRef.current = null;
+      }
+      portalContainer.remove();
+    };
+  }, []);
+
   // Intercept same-origin target="_blank" links to navigate in-place
   // instead of opening new tabs outside the dashboard shell.
   useEmbeddedLinkInterceptor();
@@ -95,21 +117,19 @@ const MlflowWrapperBase: React.FC<MlflowFederatedShellProps> = ({ basename, brea
   const apolloClient = useMemo(() => createApolloClient(), []);
   const queryClient = useMemo(() => new QueryClient(), []);
   const [isDarkTheme, setIsDarkTheme] = useMLflowDarkTheme();
-  const getPopupContainer = useCallback(() => document.body, []);
+  const getPopupContainer = useCallback(() => portalContainerRef.current ?? document.body, []);
   const logObservabilityEvent = useCallback((event: any) => {
     telemetryClient.logEvent(event);
   }, []);
 
-  // Add pf-shell-root to body for CSS scoping of portal content.
   useEffect(() => {
-    document.body.classList.add('pf-shell-root');
-    return () => document.body.classList.remove('pf-shell-root');
-  }, []);
+    portalContainerRef.current?.classList.toggle(DARK_MODE_CLASS_NAME, isDarkTheme);
+  }, [isDarkTheme]);
 
   if (!intl) return <LegacySkeleton />;
 
   return (
-    <div className="mlflow-federated pf-shell-container">
+    <div className={`mlflow-federated pf-shell-root${isDarkTheme ? ` ${DARK_MODE_CLASS_NAME}` : ''}`}>
       <ModularArchContextProvider config={modularArchConfig}>
         <ApolloProvider client={apolloClient}>
           <RawIntlProvider value={intl} key={intl.locale}>

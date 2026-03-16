@@ -130,9 +130,9 @@ const PromptsPage = ({ experimentId }: { experimentId?: string } = {}) => {
               onSearchFilterChange={setSearchFilter}
               componentId={componentIds.search}
               actions={
-                isEmbedded && (
+                isEmbedded && !experimentId && createButton ? (
                   <div css={{ marginLeft: 'auto', display: 'flex', gap: theme.spacing.sm }}>{createButton}</div>
-                )
+                ) : undefined
               }
             />
           </div>
