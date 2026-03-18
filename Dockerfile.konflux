@@ -26,16 +26,16 @@ USER 0
 COPY --chown=1001:0 . .
 RUN if [ -f /cachi2/cachi2.env ]; then . /cachi2/cachi2.env; fi && \
     python -m pip install --no-cache-dir --require-hashes --no-deps \
-        -r requirements/konflux-build-aipcc.txt && \
+        -r requirements/konflux-build-aipcc-requirements.txt && \
     python -m pip wheel --no-cache-dir --no-deps --require-hashes \
-        -r requirements/konflux-pypi.txt --wheel-dir /tmp/dist && \
+        -r requirements/konflux-pypi-requirements.txt --wheel-dir /tmp/dist && \
     cp pyproject.release.toml pyproject.toml && \
     python -m build --wheel --outdir /tmp/dist libs/tracing && \
     python -m build --wheel --outdir /tmp/dist libs/skinny && \
     python -m build --wheel --outdir /tmp/dist . && \
     python -m build --wheel --outdir /tmp/dist kubernetes-workspace-provider
 
-FROM registry.access.redhat.com/ubi9/ubi:9.7@sha256:05fa0100593c08b5e9dde684cd3eaa94b4d5d7b3cc09944f1f73924e49fde036
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7@sha256:69f5c9886ecb19b23e88275a5cd904c47dd982dfa370fbbd0c356d7b1047ef68
 ARG MLFLOW_VERSION=3.3.2
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -47,12 +47,12 @@ WORKDIR /app
 
 USER 0
 COPY --from=python-builder /tmp/dist/ /tmp/dist/
-COPY requirements/konflux-aipcc.txt /tmp/konflux-aipcc.txt
+COPY requirements/konflux-aipcc-requirements.txt /tmp/konflux-aipcc-requirements.txt
 RUN set -eux; \
-    dnf install -y --setopt=tsflags=nodocs python3.12 python3.12-pip postgresql-libs openblas-threads && \
+    microdnf install -y --setopt=tsflags=nodocs python3.12 python3.12-pip postgresql-libs openblas-threads && \
     if [ -f /cachi2/cachi2.env ]; then . /cachi2/cachi2.env; fi && \
     python3.12 -m pip install --no-cache-dir --require-hashes --no-deps \
-        -r /tmp/konflux-aipcc.txt && \
+        -r /tmp/konflux-aipcc-requirements.txt && \
     python3.12 -m pip install --no-cache-dir --no-deps \
         /tmp/dist/mlflow_tracing-*.whl \
         /tmp/dist/mlflow_skinny-*.whl \
@@ -60,8 +60,8 @@ RUN set -eux; \
         /tmp/dist/mlflow_kubernetes_workspace_provider-*.whl \
         /tmp/dist/prometheus_flask_exporter-*.whl \
         /tmp/dist/psycopg2-*.whl && \
-    dnf clean all && \
-    rm -rf /tmp/dist /tmp/konflux-aipcc.txt
+    microdnf clean all && \
+    rm -rf /tmp/dist /tmp/konflux-aipcc-requirements.txt
 
 # Copy built UI from builder stage
 COPY --from=ui-builder /opt/app-root/src/build /tmp/mlflow-ui-build
