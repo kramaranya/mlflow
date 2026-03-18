@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -16,6 +17,8 @@ from pathlib import Path
 from packaging.version import InvalidVersion, Version
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+UI_VERSION_FILE = REPO_ROOT / "mlflow" / "server" / "js" / "src" / "common" / "constants.tsx"
+UI_VERSION_PATTERN = re.compile(r"^export const Version = '.+';$", re.MULTILINE)
 
 
 def validate_version(version: str) -> None:
@@ -26,9 +29,25 @@ def validate_version(version: str) -> None:
         sys.exit(1)
 
 
+def update_ui_version(version: str, *, dry_run: bool, path: Path = UI_VERSION_FILE) -> None:
+    # Keep prerelease/dev suffixes, but hide local build metadata such as +rhaiv.2.
+    ui_version = Version(version).public
+    if dry_run:
+        print(f"[dry-run] Would set UI version in {path} to {ui_version}")
+        return
+
+    old_text = path.read_text()
+    if not UI_VERSION_PATTERN.search(old_text):
+        raise ValueError(f"Could not find UI version constant in {path}")
+
+    new_text = UI_VERSION_PATTERN.sub(f"export const Version = '{ui_version}';", old_text)
+    path.write_text(new_text)
+
+
 def update_all_source_files(version: str, *, dry_run: bool) -> None:
     if dry_run:
         print("[dry-run] Would run: update_versions() from dev/update_mlflow_versions.py")
+        update_ui_version(version, dry_run=True)
         return
 
     # Use the existing update_versions() which handles all source files:
@@ -46,6 +65,7 @@ def update_all_source_files(version: str, *, dry_run: bool) -> None:
     print("Updating all source files...")
     # The dynamically loaded module intentionally provides update_versions().
     mod.update_versions(version)
+    update_ui_version(version, dry_run=False)
 
 
 def regenerate_pyproject(*, dry_run: bool) -> None:
