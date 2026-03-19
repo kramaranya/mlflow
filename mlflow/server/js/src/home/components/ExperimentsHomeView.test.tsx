@@ -68,7 +68,7 @@ describe('ExperimentsHomeView', () => {
 
     expect(screen.getByRole('heading', { level: 3, name: 'Recent Experiments' })).toBeInTheDocument();
     expect(screen.getByText('Create your first experiment')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Go to Experiments' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View all' })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Create experiment' }));
     expect(onCreateExperiment).toHaveBeenCalled();

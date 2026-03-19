@@ -1,0 +1,135 @@
+.pf-shell-root {
+  /* Modals */
+  .du-bois-light-modal,
+  .du-bois-dark-modal {
+    .du-bois-light-modal-content,
+    .du-bois-dark-modal-content {
+      border: var(--pf-t--global--border--width--high-contrast--regular) solid
+        var(--pf-t--global--border--color--high-contrast);
+      border-radius: var(--pf-t--global--border--radius--large);
+      background-color: var(--pf-t--global--background--color--floating--default);
+      box-shadow: var(--pf-t--global--box-shadow--lg);
+    }
+
+    .du-bois-light-modal-header,
+    .du-bois-dark-modal-header {
+      padding-block-start: var(--pf-t--global--spacer--lg);
+      padding-block-end: var(--pf-t--global--spacer--sm);
+      padding-inline-start: var(--pf-t--global--spacer--lg);
+      padding-inline-end: var(--pf-t--global--spacer--lg);
+    }
+
+    .du-bois-light-modal-body,
+    .du-bois-dark-modal-body {
+      padding-block-start: var(--pf-t--global--spacer--lg);
+      padding-inline-start: var(--pf-t--global--spacer--lg);
+      padding-inline-end: var(--pf-t--global--spacer--lg);
+      background: transparent;
+    }
+
+    .du-bois-light-alert,
+    .du-bois-dark-alert {
+      box-shadow: none;
+    }
+
+    .du-bois-light-modal-footer,
+    .du-bois-dark-modal-footer {
+      padding: var(--pf-t--global--spacer--lg);
+    }
+
+    .du-bois-light-modal-title,
+    .du-bois-dark-modal-title {
+      font-weight: var(--pf-t--global--font--weight--heading--default);
+      font-size: var(--pf-t--global--font--size--heading--md);
+      line-height: var(--pf-t--global--font--line-height--heading);
+    }
+
+    .du-bois-light-modal-close,
+    .du-bois-dark-modal-close {
+      padding: 0;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+
+      &:hover,
+      &:focus {
+        background: transparent;
+        box-shadow: none;
+        color: inherit;
+      }
+    }
+
+    .du-bois-light-modal-close-x,
+    .du-bois-dark-modal-close-x {
+      inset-block-start: var(--pf-t--global--spacer--lg);
+      inset-inline-end: var(--pf-t--global--spacer--lg);
+      padding: var(--pf-t--global--spacer--sm);
+      border: none;
+      border-radius: var(--pf-t--global--border--radius--small);
+      color: var(--pf-t--global--icon--color--regular);
+      background: transparent;
+      box-shadow: none;
+      cursor: pointer;
+
+      span,
+      svg,
+      div,
+      * {
+        background: transparent;
+        box-shadow: none;
+      }
+
+      &:hover {
+        border: none;
+        background: var(--pf-t--global--background--color--action--plain--hover);
+        box-shadow: none;
+      }
+    }
+  }
+
+  /* Popovers */
+  [role='dialog'][data-component-type='popover'],
+  [data-radix-popper-content-wrapper] [role='dialog'] {
+    padding: var(--pf-t--global--spacer--lg);
+    border: none;
+    border-radius: var(--pf-t--global--border--radius--large);
+    background-color: var(--pf-t--global--background--color--floating--default);
+    box-shadow: var(--pf-t--global--box-shadow--lg);
+  }
+
+  // Info popover icon
+  span[role='button'][aria-haspopup='dialog'][data-state]:has(> .anticon) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--pf-v6-c-icon--m-inline--Width);
+    height: var(--pf-v6-c-icon--m-inline--Height);
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--pf-t--global--icon--color--subtle);
+
+    > .anticon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      line-height: 1;
+      color: inherit;
+      transition: color var(--pf-t--global--motion--duration--fade--short)
+        var(--pf-t--global--motion--timing-function--default);
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      color: inherit;
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: var(--pf-t--global--icon--color--regular) !important;
+    }
+  }
+}
