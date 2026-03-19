@@ -55,9 +55,16 @@ def get_java_new_py_version(new_py_version: str) -> str:
 
 
 def replace_dev_or_rc_suffix_with(version: str, repl: str) -> str:
+    """Map Python package versions to the variants used in Java and R files."""
     parsed = Version(version)
     base_version = parsed.base_version
-    return base_version + repl if parsed.is_prerelease else version
+    if parsed.is_prerelease:
+        return base_version + repl
+    if parsed.local:
+        # Java and R version metadata do not support PEP 440 local labels, so
+        # downstream builds such as 3.10.1+rhaiv.1 use the base version there.
+        return base_version
+    return version
 
 
 def replace_occurrences(files: list[Path], pattern: str | re.Pattern[str], repl: str) -> None:

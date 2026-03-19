@@ -17,6 +17,7 @@ repos:
     hooks:
       - id: prettier
         files: '^(?!docs/|mlflow/server/js/|libs/typescript/|\.tekton/).+\.(js|ts|md|json|ya?ml)$'
+        exclude: '^\.github/renovate\.json$'
         require_serial: true
 
   - repo: local
