@@ -16,7 +16,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ModularArchContextProvider, DeploymentMode } from 'mod-arch-core';
 import type { ModularArchConfig } from 'mod-arch-core';
-import { BrowserRouter, useSearchParams } from '../../common/utils/RoutingUtils';
+import { BrowserRouter, MemoryRouter, useSearchParams } from '../../common/utils/RoutingUtils';
 import { ApolloProvider } from '@mlflow/mlflow/src/common/utils/graphQLHooks';
 import { extractWorkspaceFromSearchParams, setActiveWorkspace } from '../../workspaces/utils/WorkspaceUtils';
 
@@ -50,9 +50,17 @@ import { useEmbeddedLinkInterceptor } from '../../common/hooks/useEmbeddedLinkIn
 import { WorkflowTypeProvider } from '../../common/contexts/WorkflowTypeContext';
 
 export interface MlflowFederatedShellProps {
-  basename: string;
+  /** Required when using BrowserRouter (page mode). Ignored in MemoryRouter mode. */
+  basename?: string;
   breadcrumbReporter?: React.ReactNode;
   children: React.ReactNode;
+  /**
+   * When provided, a MemoryRouter is used instead of BrowserRouter.
+   * This allows the wrapper to be embedded as a sub-component in another
+   * page without affecting the browser URL. The entries should contain
+   * the initial route path matching the internal route structure.
+   */
+  memoryRouterEntries?: string[];
 }
 
 const FEDERATED_PORTAL_CONTAINER_ATTR = 'data-mlflow-federated-portal-container';
@@ -81,7 +89,12 @@ const modularArchConfig: ModularArchConfig = {
   BFF_API_VERSION: 'v1',
 };
 
-const MlflowWrapperBase: React.FC<MlflowFederatedShellProps> = ({ basename, breadcrumbReporter, children }) => {
+const MlflowWrapperBase: React.FC<MlflowFederatedShellProps> = ({
+  basename,
+  breadcrumbReporter,
+  children,
+  memoryRouterEntries,
+}) => {
   const portalContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Add a dedicated portal container for federated mode.
@@ -102,7 +115,9 @@ const MlflowWrapperBase: React.FC<MlflowFederatedShellProps> = ({ basename, brea
 
   // Intercept same-origin target="_blank" links to navigate in-place
   // instead of opening new tabs outside the dashboard shell.
-  useEmbeddedLinkInterceptor();
+  // Skipped in MemoryRouter (embedded sub-component) mode where we don't
+  // want any browser URL manipulation.
+  useEmbeddedLinkInterceptor(!memoryRouterEntries);
 
   // Synchronously set workspace from URL before the first render of children.
   // This ensures getActiveWorkspace() returns the correct value during the
@@ -141,14 +156,22 @@ const MlflowWrapperBase: React.FC<MlflowFederatedShellProps> = ({ basename, brea
                       <DarkThemeProvider setIsDarkTheme={setIsDarkTheme}>
                         <QueryClientProvider client={queryClient}>
                           <ServerInfoProvider>
-                            <BrowserRouter basename={basename}>
-                              <WorkflowTypeProvider>
-                                <WorkspaceSync>
-                                  {breadcrumbReporter}
+                            {memoryRouterEntries ? (
+                              <MemoryRouter initialEntries={memoryRouterEntries}>
+                                <WorkflowTypeProvider>
                                   <React.Suspense fallback={<LegacySkeleton />}>{children}</React.Suspense>
-                                </WorkspaceSync>
-                              </WorkflowTypeProvider>
-                            </BrowserRouter>
+                                </WorkflowTypeProvider>
+                              </MemoryRouter>
+                            ) : (
+                              <BrowserRouter basename={basename}>
+                                <WorkflowTypeProvider>
+                                  <WorkspaceSync>
+                                    {breadcrumbReporter}
+                                    <React.Suspense fallback={<LegacySkeleton />}>{children}</React.Suspense>
+                                  </WorkspaceSync>
+                                </WorkflowTypeProvider>
+                              </BrowserRouter>
+                            )}
                           </ServerInfoProvider>
                         </QueryClientProvider>
                       </DarkThemeProvider>

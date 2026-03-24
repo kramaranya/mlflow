@@ -2,6 +2,14 @@ import { useEffect } from 'react';
 import { isIntegrated } from '../utils/embedUtils';
 
 type ScopedLinkTarget = { link: HTMLAnchorElement; url: URL };
+type RestrictedLinkPredicate = (link: HTMLAnchorElement, url: URL) => boolean;
+type NavigateInPlacePredicate = (link: HTMLAnchorElement, url: URL) => boolean;
+
+type EmbeddedLinkInterceptorOptions = {
+  enabled?: boolean;
+  isRestrictedLink?: RestrictedLinkPredicate;
+  shouldNavigateInPlace?: NavigateInPlacePredicate;
+};
 
 const FEDERATED_WRAPPER_SELECTOR = '.mlflow-federated';
 const FEDERATED_PORTAL_ROOT_SELECTOR = [
@@ -140,20 +148,12 @@ const isWithinFederatedScope = (
   return isFederatedPortalRoot(target.closest(SCOPED_PORTAL_ROOT_SELECTOR));
 };
 
-const isRestrictedFederatedLink = (link: HTMLAnchorElement) => {
-  try {
-    const url = new URL(link.href, window.location.origin);
-    return (
-      (url.origin === window.location.origin &&
-        url.pathname.includes('/models/') &&
-        !url.pathname.includes('/experiments/')) ||
-      url.hostname === 'mlflow.org' ||
-      url.hostname.endsWith('.mlflow.org')
-    );
-  } catch {
-    return false;
-  }
-};
+const isRestrictedFederatedLink: RestrictedLinkPredicate = (_link, url) =>
+  (url.origin === window.location.origin &&
+    url.pathname.includes('/models/') &&
+    !url.pathname.includes('/experiments/')) ||
+  url.hostname === 'mlflow.org' ||
+  url.hostname.endsWith('.mlflow.org');
 
 // Same-origin target="_blank" links should route inside the dashboard shell
 // instead of opening the standalone MLflow app in a separate tab.
@@ -185,6 +185,14 @@ const cancelEvent = (event: MouseEvent | KeyboardEvent) => {
   event.stopPropagation();
 };
 
+const getLinkUrl = (link: HTMLAnchorElement) => {
+  try {
+    return new URL(link.href, window.location.origin);
+  } catch {
+    return null;
+  }
+};
+
 const getScopedLinkTarget = (target: EventTarget | null): ScopedLinkTarget | null => {
   if (!isWithinFederatedScope(target)) {
     return null;
@@ -203,6 +211,8 @@ const getScopedLinkTarget = (target: EventTarget | null): ScopedLinkTarget | nul
 };
 
 const isModifiedClick = (event: MouseEvent) => event.ctrlKey || event.metaKey || event.shiftKey || event.button === 1;
+const shouldNavigateSameOriginLinkInPlace: NavigateInPlacePredicate = (link, url) =>
+  url.origin === window.location.origin && link.target === '_blank';
 
 const restoreGuardedLinkTabStop = (element: HTMLAnchorElement) => {
   const originalTabIndex = element.getAttribute(ORIGINAL_TABINDEX_ATTR);
@@ -222,8 +232,13 @@ const restoreGuardedLinkTabStops = (root: Document | Element = document) => {
   forEachMatchingAnchor(root, GUARDED_LINK_SELECTOR, restoreGuardedLinkTabStop);
 };
 
-const syncRestrictedLinkTabStop = (element: HTMLAnchorElement, mlflowWrapper: Element | null) => {
-  if (!isWithinFederatedScope(element, mlflowWrapper) || !isRestrictedFederatedLink(element)) {
+const syncRestrictedLinkTabStop = (
+  element: HTMLAnchorElement,
+  mlflowWrapper: Element | null,
+  isRestrictedLink: RestrictedLinkPredicate,
+) => {
+  const url = getLinkUrl(element);
+  if (!url || !isWithinFederatedScope(element, mlflowWrapper) || !isRestrictedLink(element, url)) {
     if (element.getAttribute(EMBEDDED_LINK_GUARD_ATTR) === 'true') {
       restoreGuardedLinkTabStop(element);
     }
@@ -241,10 +256,13 @@ const syncRestrictedLinkTabStop = (element: HTMLAnchorElement, mlflowWrapper: El
   element.setAttribute(EMBEDDED_LINK_GUARD_ATTR, 'true');
 };
 
-const updateRestrictedLinkTabStops = (root: Document | Element = document.body) => {
+const updateRestrictedLinkTabStops = (
+  root: Document | Element = document.body,
+  isRestrictedLink: RestrictedLinkPredicate,
+) => {
   const mlflowWrapper = getFederatedWrapper();
   forEachMatchingAnchor(root, 'a[href]', (element) => {
-    syncRestrictedLinkTabStop(element, mlflowWrapper);
+    syncRestrictedLinkTabStop(element, mlflowWrapper, isRestrictedLink);
   });
 };
 
@@ -263,7 +281,7 @@ const shouldSyncClassMutationTarget = (element: Element) =>
 
 // MutationObserver already batches records; we further narrow each batch to the
 // roots that actually need portal ownership updates, link restores, or rescans.
-const syncMutationBatch = (mutations: MutationRecord[]) => {
+const syncMutationBatch = (mutations: MutationRecord[], isRestrictedLink: RestrictedLinkPredicate) => {
   const portalRootsToSync = new Set<Element>();
   const rootsToRestore = new Set<Element>();
   const rootsToSync = new Set<Element>();
@@ -313,7 +331,7 @@ const syncMutationBatch = (mutations: MutationRecord[]) => {
     restoreGuardedLinkTabStops(root);
   });
   rootsToSync.forEach((root) => {
-    updateRestrictedLinkTabStops(root);
+    updateRestrictedLinkTabStops(root, isRestrictedLink);
   });
 };
 
@@ -333,32 +351,36 @@ const syncMutationBatch = (mutations: MutationRecord[]) => {
  * Ctrl/Cmd+click always opens in a new tab (standard browser behavior).
  *
  * The heavy lifting lives in the DOM helpers above; the hook below only wires
- * them to the document lifecycle while MLflow is embedded.
+ * them to the document lifecycle while MLflow is embedded. Callers can also
+ * provide a custom restricted-link predicate for more specific embedded views.
  */
-export const useEmbeddedLinkInterceptor = () => {
+export const useEmbeddedLinkInterceptor = (options: boolean | EmbeddedLinkInterceptorOptions = true) => {
+  const normalizedOptions = typeof options === 'boolean' ? { enabled: options } : options;
+  const {
+    enabled = true,
+    isRestrictedLink = isRestrictedFederatedLink,
+    shouldNavigateInPlace = shouldNavigateSameOriginLinkInPlace,
+  } = normalizedOptions;
   const isEmbedded = isIntegrated();
+  const isActive = isEmbedded && enabled;
 
   useEffect(() => {
-    if (!isEmbedded) return;
+    if (!isActive) return;
 
     const handleClick = (event: MouseEvent) => {
       const scopedLinkTarget = getScopedLinkTarget(event.target);
       if (!scopedLinkTarget) return;
       const { link, url } = scopedLinkTarget;
 
-      if (isRestrictedFederatedLink(link)) {
+      if (isRestrictedLink(link, url)) {
         cancelEvent(event);
         return;
       }
 
-      // External links: let them open normally (new tab)
-      if (url.origin !== window.location.origin) return;
-
       // Ctrl/Cmd/Shift+click or middle-click: let browser open new tab
       if (isModifiedClick(event)) return;
 
-      // Same-origin target="_blank" links: navigate in-place instead
-      if (link.target === '_blank') {
+      if (shouldNavigateInPlace(link, url)) {
         cancelEvent(event);
         navigateInPlace(url);
       }
@@ -370,23 +392,23 @@ export const useEmbeddedLinkInterceptor = () => {
       if (!scopedLinkTarget) return;
       const { link, url } = scopedLinkTarget;
 
-      if (isRestrictedFederatedLink(link)) {
+      if (isRestrictedLink(link, url)) {
         cancelEvent(event);
         return;
       }
 
       if (event.key !== 'Enter') return;
 
-      if (url.origin !== window.location.origin || link.target !== '_blank') return;
-
-      cancelEvent(event);
-      navigateInPlace(url);
+      if (shouldNavigateInPlace(link, url)) {
+        cancelEvent(event);
+        navigateInPlace(url);
+      }
     };
 
     updateOwnedPortalRoots();
-    updateRestrictedLinkTabStops();
+    updateRestrictedLinkTabStops(document.body, isRestrictedLink);
 
-    const observer = new MutationObserver(syncMutationBatch);
+    const observer = new MutationObserver((mutations) => syncMutationBatch(mutations, isRestrictedLink));
     observer.observe(document.body, {
       childList: true,
       subtree: true,
@@ -395,15 +417,17 @@ export const useEmbeddedLinkInterceptor = () => {
     });
 
     document.addEventListener('click', handleClick, true);
+    document.addEventListener('auxclick', handleClick, true);
     document.addEventListener('keydown', handleKeyDown, true);
     return () => {
       observer.disconnect();
       clearOwnedPortalRootMarkers();
       restoreGuardedLinkTabStops();
       document.removeEventListener('click', handleClick, true);
+      document.removeEventListener('auxclick', handleClick, true);
       document.removeEventListener('keydown', handleKeyDown, true);
     };
-  }, [isEmbedded]);
+  }, [isActive, isRestrictedLink, shouldNavigateInPlace]);
 
   return isEmbedded;
 };

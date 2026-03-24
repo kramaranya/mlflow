@@ -173,4 +173,45 @@ describe('useEmbeddedLinkInterceptor', () => {
       expect(restrictedLink).toHaveAttribute(GUARDED_LINK_ATTR, 'true');
     });
   });
+
+  it('supports custom restricted-link predicates for embedded subviews', async () => {
+    const wrapper = createFederatedWrapper();
+    const restrictedLink = createAnchor('/custom/blocked');
+    const allowedLink = createAnchor('/custom/allowed');
+
+    wrapper.append(restrictedLink, allowedLink);
+
+    renderHook(() =>
+      useEmbeddedLinkInterceptor({
+        isRestrictedLink: (link) => (link.getAttribute('href') ?? '').includes('/blocked'),
+        shouldNavigateInPlace: () => false,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(restrictedLink).toHaveAttribute(GUARDED_LINK_ATTR, 'true');
+    });
+
+    expect(allowedLink).not.toHaveAttribute(GUARDED_LINK_ATTR);
+  });
+
+  it('lets callers disable in-place navigation for same-origin target blank links', () => {
+    const wrapper = createFederatedWrapper();
+    const link = createAnchor('/custom/allowed');
+    link.target = '_blank';
+    wrapper.appendChild(link);
+
+    const pushStateSpy = jest.spyOn(window.history, 'pushState');
+
+    renderHook(() =>
+      useEmbeddedLinkInterceptor({
+        shouldNavigateInPlace: () => false,
+      }),
+    );
+
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    expect(pushStateSpy).not.toHaveBeenCalled();
+    pushStateSpy.mockRestore();
+  });
 });
