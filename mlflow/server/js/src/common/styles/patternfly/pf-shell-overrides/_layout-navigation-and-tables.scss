@@ -123,6 +123,12 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
         background-color: transparent;
       }
 
+      /* Override the Emotion "row > *" border-bottom applied to wrapper divs
+         between the row and cells — the row already has border-block-end. */
+      > * {
+        border-bottom: none !important;
+      }
+
       div[role='cell'] {
         border-bottom: none;
 
@@ -150,6 +156,7 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
       padding-inline-end: var(--pf-t--global--spacer--sm);
       background-color: var(--pf-t--global--background--color--primary--default);
     }
+
     div[role='row'] {
       height: auto;
       &:hover {
@@ -182,9 +189,9 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
     }
   }
 
-  /* Table header alignment */
-  [role='columnheader'] [role='button'],
-  [role='columnheader'] > div {
+  /* Table header alignment (exclude resize handles so their dividers keep align-items:stretch) */
+  [role='columnheader'] [role='button']:not([aria-label='Resize Column']),
+  [role='columnheader'] > div:not([aria-label='Resize Column']) {
     display: inline-flex;
     align-items: center;
     gap: var(--pf-t--global--spacer--xs);
@@ -193,15 +200,15 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
       var(--pf-t--global--motion--timing-function--default);
   }
 
-  [role='columnheader']:hover [role='button'],
-  [role='columnheader']:hover > div,
-  [role='columnheader'] [role='button']:hover {
+  [role='columnheader']:hover [role='button']:not([aria-label='Resize Column']),
+  [role='columnheader']:hover > div:not([aria-label='Resize Column']),
+  [role='columnheader'] [role='button']:not([aria-label='Resize Column']):hover {
     color: var(--pf-t--global--text--color--regular) !important;
   }
 
   .table-header-text {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     vertical-align: middle;
     color: inherit;
   }
