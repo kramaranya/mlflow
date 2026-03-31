@@ -281,6 +281,38 @@ $mlflow-form-status-icon-offset: 0.2em;
     }
   }
 
+  .du-bois-light-form-message.du-bois-light-form-error-message,
+  .du-bois-dark-form-message.du-bois-dark-form-error-message {
+    font-size: var(--pf-t--global--font--size--body--sm) !important;
+    font-weight: var(--pf-t--global--font--weight--body--bold) !important;
+    line-height: var(--pf-t--global--font--line-height--body) !important;
+    color: var(--pf-t--global--text--color--regular) !important;
+    margin-top: 0 !important;
+    padding-block: var(--pf-t--global--spacer--xs) !important;
+    display: flex !important;
+    align-items: start !important;
+    gap: var(--pf-t--global--spacer--xs) !important;
+
+    // PF danger alert icon
+    > span[role='img'],
+    > svg {
+      display: none !important;
+    }
+
+    &::before {
+      content: '';
+      flex-shrink: 0;
+      width: 1em;
+      height: 1em;
+      margin-top: 0.2em;
+      background-color: var(--pf-t--global--color--status--danger--default);
+      mask-image: url('data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgZmlsbD0iY3VycmVudENvbG9yIiBhcmlhLWhpZGRlbj0idHJ1ZSIgcm9sZT0iaW1nIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNTA0IDI1NmMwIDEzNi45OTctMTExLjA0MyAyNDgtMjQ4IDI0OFM4IDM5Mi45OTcgOCAyNTZDOCAxMTkuMDgzIDExOS4wNDMgOCAyNTYgOHMyNDggMTExLjA4MyAyNDggMjQ4em0tMjQ4IDUwYy0yNS40MDUgMC00NiAyMC41OTUtNDYgNDZzMjAuNTk1IDQ2IDQ2IDQ2IDQ2LTIwLjU5NSA0Ni00Ni0yMC41OTUtNDYtNDYtNDZ6bS00My42NzMtMTY1LjM0Nmw3LjQxOCAxMzZjLjM0NyA2LjM2NCA1LjYwOSAxMS4zNDYgMTEuOTgyIDExLjM0Nmg0OC41NDZjNi4zNzMgMCAxMS42MzUtNC45ODIgMTEuOTgyLTExLjM0Nmw3LjQxOC0xMzZjLjM3NS02Ljg3NC01LjA5OC0xMi42NTQtMTEuOTgyLTEyLjY1NGgtNjMuMzgzYy02Ljg4NCAwLTEyLjM1NiA1Ljc4LTExLjk4MSAxMi42NTR6Ij48L3BhdGg+PC9zdmc+');
+      -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgZmlsbD0iY3VycmVudENvbG9yIiBhcmlhLWhpZGRlbj0idHJ1ZSIgcm9sZT0iaW1nIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNTA0IDI1NmMwIDEzNi45OTctMTExLjA0MyAyNDgtMjQ4IDI0OFM4IDM5Mi45OTcgOCAyNTZDOCAxMTkuMDgzIDExOS4wNDMgOCAyNTYgOHMyNDggMTExLjA4MyAyNDggMjQ4em0tMjQ4IDUwYy0yNS40MDUgMC00NiAyMC41OTUtNDYgNDZzMjAuNTk1IDQ2IDQ2IDQ2IDQ2LTIwLjU5NSA0Ni00Ni0yMC41OTUtNDYtNDYtNDZ6bS00My42NzMtMTY1LjM0Nmw3LjQxOCAxMzZjLjM0NyA2LjM2NCA1LjYwOSAxMS4zNDYgMTEuOTgyIDExLjM0Nmg0OC41NDZjNi4zNzMgMCAxMS42MzUtNC45ODIgMTEuOTgyLTExLjM0Nmw3LjQxOC0xMzZjLjM3NS02Ljg3NC01LjA5OC0xMi42NTQtMTEuOTgyLTEyLjY1NGgtNjMuMzgzYy02Ljg4NCAwLTEyLjM1NiA1Ljc4LTExLjk4MSAxMi42NTR6Ij48L3BhdGg+PC9zdmc+');
+      mask-size: contain;
+      mask-repeat: no-repeat;
+    }
+  }
+
   /* Fix button clipping in EvaluationArtifactCompareView */
   div:has(> .du-bois-light-dialogcombobox:has([data-testid='dropdown-tables'])),
   div:has(> .du-bois-dark-dialogcombobox:has([data-testid='dropdown-tables'])) {
@@ -303,6 +335,7 @@ $mlflow-form-status-icon-offset: 0.2em;
     display: inline-flex;
     align-items: center;
     vertical-align: middle;
+    overflow: visible !important;
     padding-block: 0;
     padding-inline: var(--pf-t--global--spacer--sm);
     font-size: var(--pf-t--global--font--size--body--sm) !important;
@@ -318,6 +351,99 @@ $mlflow-form-status-icon-offset: 0.2em;
     background-color: transparent;
     color: var(--pf-t--global--text--color--regular);
     white-space: nowrap;
+
+    button[data-component-id$='.close'][data-component-type='button'] {
+      &:hover,
+      &:focus {
+        background: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        color: var(--pf-t--global--text--color--regular) !important;
+      }
+    }
+  }
+
+  /* Restore list indentation stripped by PF base reset */
+  div:has(> .du-bois-light-typography) > ol,
+  div:has(> .du-bois-light-typography) > ul,
+  div:has(> .du-bois-dark-typography) > ol,
+  div:has(> .du-bois-dark-typography) > ul {
+    padding-inline-start: 2em;
+  }
+
+  div:has(> button[data-component-id='shared.model-trace-explorer.chat-message-see-more']),
+  div:has(> button[data-component-id='shared.model-trace-explorer.chat-message-see-less']) {
+    /* Chat message role buttons plain button styling */
+    div[role='button']:has(> .du-bois-light-typography, > .du-bois-dark-typography) {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--pf-t--global--spacer--gap--text-to-element--default);
+      padding-block: var(--pf-t--global--spacer--control--vertical--default);
+      padding-inline: var(--pf-t--global--spacer--sm);
+      background-color: transparent;
+      border: 0;
+      border-radius: var(--pf-t--global--border--radius--small);
+      color: var(--pf-t--global--text--color--regular);
+      font-size: var(--pf-t--global--font--size--body--default);
+      font-weight: var(--pf-t--global--font--weight--body--default);
+      line-height: var(--pf-t--global--font--line-height--body);
+      cursor: pointer;
+      white-space: nowrap;
+      width: auto;
+      transition: background-color var(--pf-t--global--motion--duration--fade--default)
+        var(--pf-t--global--motion--timing-function--accelerate);
+
+      .du-bois-light-typography,
+      .du-bois-dark-typography {
+        color: inherit !important;
+        font-size: inherit !important;
+      }
+
+      // Replace DS carets with PF icons
+      > span[role='img']:first-child {
+        color: var(--pf-t--global--icon--color--regular);
+        position: relative;
+        overflow: visible !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        svg {
+          display: none !important;
+        }
+
+        &::after {
+          content: '';
+          width: 0.8em;
+          height: 0.8em;
+          background-color: currentColor;
+          mask-size: contain;
+          mask-repeat: no-repeat;
+          mask-position: center;
+          -webkit-mask-size: contain;
+          -webkit-mask-repeat: no-repeat;
+          -webkit-mask-position: center;
+        }
+      }
+
+      // Collapsed PF AngleRightIcon
+      > span[role='img']:first-child:has(> svg > path[d^='M8.917'])::after {
+        mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0yMjQuMyAyNzNsLTEzNiAxMzZjLTkuNCA5LjQtMjQuNiA5LjQtMzMuOSAwbC0yMi42LTIyLjZjLTkuNC05LjQtOS40LTI0LjYgMC0zMy45bDk2LjQtOTYuNC05Ni40LTk2LjRjLTkuNC05LjQtOS40LTI0LjYgMC0zMy45TDU0LjMgMTAzYzkuNC05LjQgMjQuNi05LjQgMzMuOSAwbDEzNiAxMzZjOS41IDkuNCA5LjUgMjQuNi4xIDM0eiIvPjwvc3ZnPg==');
+        -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0yMjQuMyAyNzNsLTEzNiAxMzZjLTkuNCA5LjQtMjQuNiA5LjQtMzMuOSAwbC0yMi42LTIyLjZjLTkuNC05LjQtOS40LTI0LjYgMC0zMy45bDk2LjQtOTYuNC05Ni40LTk2LjRjLTkuNC05LjQtOS40LTI0LjYgMC0zMy45TDU0LjMgMTAzYzkuNC05LjQgMjQuNi05LjQgMzMuOSAwbDEzNiAxMzZjOS41IDkuNCA5LjUgMjQuNi4xIDM0eiIvPjwvc3ZnPg==');
+      }
+
+      // Expanded PF AngleDownIcon
+      > span[role='img']:first-child:has(> svg > path[d^='M8 8.917'])::after {
+        mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xNDMgMzUyLjNMNyAyMTYuM2MtOS40LTkuNC05LjQtMjQuNiAwLTMzLjlsMjIuNi0yMi42YzkuNC05LjQgMjQuNi05LjQgMzMuOSAwbDk2LjQgOTYuNCA5Ni40LTk2LjRjOS40LTkuNCAyNC42LTkuNCAzMy45IDBsMjIuNiAyMi42YzkuNCA5LjQgOS40IDI0LjYgMCAzMy45bC0xMzYgMTM2Yy05LjIgOS40LTI0LjQgOS40LTMzLjggMHoiLz48L3N2Zz4=');
+        -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0xNDMgMzUyLjNMNyAyMTYuM2MtOS40LTkuNC05LjQtMjQuNiAwLTMzLjlsMjIuNi0yMi42YzkuNC05LjQgMjQuNi05LjQgMzMuOSAwbDk2LjQgOTYuNCA5Ni40LTk2LjRjOS40LTkuNCAyNC42LTkuNCAzMy45IDBsMjIuNiAyMi42YzkuNCA5LjQgOS40IDI0LjYgMCAzMy45bC0xMzYgMTM2Yy05LjIgOS40LTI0LjQgOS40LTMzLjggMHoiLz48L3N2Zz4=');
+      }
+
+      &:hover {
+        background-color: var(--pf-t--global--background--color--action--plain--hover);
+        border-end-start-radius: 0 !important;
+        border-end-end-radius: 0;
+      }
+    }
   }
 
   /* Alias tag container — align tag and edit button */

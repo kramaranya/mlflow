@@ -225,7 +225,7 @@
     overflow-y: auto !important;
     overflow-x: hidden !important;
     max-height: calc(var(--pf-t--global--spacer--4xl) * 6) !important;
-    min-width: var(--radix-popover-trigger-width, var(--radix-popper-anchor-width, 100%)) !important;
+    min-width: var(--radix-popover-trigger-width, var(--radix-popper-anchor-width, 200px)) !important;
     width: max-content !important;
     padding: var(--pf-t--global--spacer--sm) 0 !important;
     font-family: var(--pf-t--global--font--family--body) !important;
@@ -274,6 +274,11 @@
 
     span[role='button'][aria-label='Clear selection'] {
       padding-top: var(--pf-t--global--spacer--xs);
+      color: var(--pf-t--global--border--color--default) !important;
+    }
+
+    span[role='button'][aria-label='Clear selection']:hover {
+      color: var(--pf-t--global--icon--color--subtle) !important;
     }
   }
 
@@ -351,6 +356,18 @@
       @include control-min-height;
       box-sizing: border-box !important;
 
+      .du-bois-light-select-selection-overflow [data-component-type='tag'],
+      .du-bois-dark-select-selection-overflow [data-component-type='tag'] {
+        button {
+          &:hover,
+          &:focus {
+            background: none !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+        }
+      }
+
       .du-bois-light-select-selection-search,
       .du-bois-dark-select-selection-search {
         overflow: hidden !important;
@@ -385,9 +402,40 @@
           align-items: center !important;
           justify-content: center !important;
           border-radius: var(--pf-t--global--border--radius--small) !important;
+          background: none !important;
+          box-shadow: none !important;
 
           &:hover {
             border-radius: var(--pf-t--global--border--radius--small) !important;
+            background: none !important;
+            box-shadow: none !important;
+          }
+
+          span[role='img'] {
+            position: relative;
+
+            svg {
+              visibility: hidden !important;
+            }
+
+            &::after {
+              content: '';
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 0.65em;
+              height: 0.65em;
+              background-color: currentColor;
+              mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNTIgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0yNDIuNzIgMjU2bDEwMC4wNy0xMDAuMDdjMTIuMjgtMTIuMjggMTIuMjgtMzIuMTkgMC00NC40OGwtMjIuMjQtMjIuMjRjLTEyLjI4LTEyLjI4LTMyLjE5LTEyLjI4LTQ0LjQ4IDBMMTc2IDE4OS4yOCA3NS45MyA4OS4yMWMtMTIuMjgtMTIuMjgtMzIuMTktMTIuMjgtNDQuNDggMEw5LjIxIDExMS40NWMtMTIuMjggMTIuMjgtMTIuMjggMzIuMTkgMCA0NC40OEwxMDkuMjggMjU2IDkuMjEgMzU2LjA3Yy0xMi4yOCAxMi4yOC0xMi4yOCAzMi4xOSAwIDQ0LjQ4bDIyLjI0IDIyLjI0YzEyLjI4IDEyLjI4IDMyLjIgMTIuMjggNDQuNDggMEwxNzYgMzIyLjcybDEwMC4wNyAxMDAuMDdjMTIuMjggMTIuMjggMzIuMiAxMi4yOCA0NC40OCAwbDIyLjI0LTIyLjI0YzEyLjI4LTEyLjI4IDEyLjI4LTMyLjE5IDAtNDQuNDhMMjQyLjcyIDI1NnoiLz48L3N2Zz4=');
+              -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNTIgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0yNDIuNzIgMjU2bDEwMC4wNy0xMDAuMDdjMTIuMjgtMTIuMjggMTIuMjgtMzIuMTkgMC00NC40OGwtMjIuMjQtMjIuMjRjLTEyLjI4LTEyLjI4LTMyLjE5LTEyLjI4LTQ0LjQ4IDBMMTc2IDE4OS4yOCA3NS45MyA4OS4yMWMtMTIuMjgtMTIuMjgtMzIuMTktMTIuMjgtNDQuNDggMEw5LjIxIDExMS40NWMtMTIuMjggMTIuMjgtMTIuMjggMzIuMTkgMCA0NC40OEwxMDkuMjggMjU2IDkuMjEgMzU2LjA3Yy0xMi4yOCAxMi4yOC0xMi4yOCAzMi4xOSAwIDQ0LjQ4bDIyLjI0IDIyLjI0YzEyLjI4IDEyLjI4IDMyLjIgMTIuMjggNDQuNDggMEwxNzYgMzIyLjcybDEwMC4wNyAxMDAuMDdjMTIuMjggMTIuMjggMzIuMiAxMi4yOCA0NC40OCAwbDIyLjI0LTIyLjI0YzEyLjI4LTEyLjI4IDEyLjI4LTMyLjE5IDAtNDQuNDhMMjQyLjcyIDI1NnoiLz48L3N2Zz4=');
+              mask-size: contain;
+              mask-repeat: no-repeat;
+              mask-position: center;
+              -webkit-mask-size: contain;
+              -webkit-mask-repeat: no-repeat;
+              -webkit-mask-position: center;
+            }
           }
         }
       }

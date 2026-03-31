@@ -74,7 +74,7 @@ export const colorList: Record<string, string> = {
   actionDangerDefaultTextDefault: t_global_text_color_regular.var,
   actionDangerDefaultTextHover: t_global_text_color_regular.var,
   actionDangerDefaultTextPress: t_global_text_color_regular.var,
-  actionDangerPrimaryBackgroundDefault: t_global_background_color_floating_default.var,
+  actionDangerPrimaryBackgroundDefault: t_global_border_color_status_danger_default.var,
   actionDangerPrimaryBackgroundHover: t_global_color_status_danger_hover.var,
   actionDangerPrimaryBackgroundPress: t_global_color_status_danger_hover.var,
   actionDangerPrimaryText: t_global_background_color_primary_default.var,

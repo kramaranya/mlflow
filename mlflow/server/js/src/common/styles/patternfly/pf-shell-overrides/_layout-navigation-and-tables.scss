@@ -119,6 +119,7 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
       padding-block-end: var(--pf-t--global--spacer--sm);
       padding-inline-start: var(--pf-t--global--spacer--sm);
       padding-inline-end: var(--pf-t--global--spacer--sm);
+
       &:hover {
         background-color: transparent;
       }
@@ -133,7 +134,7 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
         border-bottom: none;
 
         &:hover {
-          background-color: transparent;
+          background-color: transparent !important;
         }
 
         span > a {
@@ -141,6 +142,39 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
           text-decoration: underline;
           &:hover {
             color: var(--pf-t--global--text--color--link--hover);
+          }
+        }
+      }
+
+      > div:not([role]) {
+        background-color: transparent !important;
+        border-bottom-width: 0 !important;
+
+        // PF6 ChevronRightIcon
+        span[role='img'] {
+          position: relative;
+
+          svg {
+            visibility: hidden !important;
+          }
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.8em;
+            height: 0.8em;
+            background-color: currentColor;
+            mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0yODUuNDc2IDI3Mi45NzFMOTEuMTMyIDQ2Ny4zMTRjLTkuMzczIDkuMzczLTI0LjU2OSA5LjM3My0zMy45NDEgMGwtMjIuNjY3LTIyLjY2N2MtOS4zNTctOS4zNTctOS4zNzUtMjQuNTIyLS4wNC0zMy45MDFMMTg4LjUwNSAyNTYgMzQuNDg0IDEwMS4yNTVjLTkuMzM1LTkuMzc5LTkuMzE3LTI0LjU0NC4wNC0zMy45MDFsMjIuNjY3LTIyLjY2N2M5LjM3My05LjM3MyAyNC41NjktOS4zNzMgMzMuOTQxIDBMMjg1LjQ3NSAyMzkuMDNjOS4zNzMgOS4zNzIgOS4zNzMgMjQuNTY4LjAwMSAzMy45NDF6Ii8+PC9zdmc+');
+            -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0yODUuNDc2IDI3Mi45NzFMOTEuMTMyIDQ2Ny4zMTRjLTkuMzczIDkuMzczLTI0LjU2OSA5LjM3My0zMy45NDEgMGwtMjIuNjY3LTIyLjY2N2MtOS4zNTctOS4zNTctOS4zNzUtMjQuNTIyLS4wNC0zMy45MDFMMTg4LjUwNSAyNTYgMzQuNDg0IDEwMS4yNTVjLTkuMzM1LTkuMzc5LTkuMzE3LTI0LjU0NC4wNC0zMy45MDFsMjIuNjY3LTIyLjY2N2M5LjM3My05LjM3MyAyNC41NjktOS4zNzMgMzMuOTQxIDBMMjg1LjQ3NSAyMzkuMDNjOS4zNzMgOS4zNzIgOS4zNzMgMjQuNTY4LjAwMSAzMy45NDF6Ii8+PC9zdmc+');
+            mask-size: contain;
+            mask-repeat: no-repeat;
+            mask-position: center;
+            -webkit-mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            -webkit-mask-position: center;
           }
         }
       }
@@ -159,8 +193,23 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
 
     div[role='row'] {
       height: auto;
-      &:hover {
-        background-color: transparent;
+    }
+  }
+
+  // Prompt versions table
+  div[aria-label='Prompt versions table'] > div[role='table'] {
+    div[role='row']:not(.table-isHeader) {
+      &:has(> div:not([role]) > span[role='img']):hover,
+      &:has(button[role='radio'][aria-checked='true']):hover {
+        background-color: color-mix(in srgb, var(--pf-t--global--color--brand--default) 16%, transparent) !important;
+      }
+
+      &:not(:has(button[role='radio'][aria-checked='true'])):not(:has(> div:not([role]) > span[role='img'])):hover {
+        background-color: var(--pf-t--global--background--color--action--plain--hover) !important;
+      }
+
+      div[role='cell'] {
+        background-color: transparent !important;
       }
     }
   }
@@ -203,12 +252,15 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
   [role='columnheader']:hover [role='button']:not([aria-label='Resize Column']),
   [role='columnheader']:hover > div:not([aria-label='Resize Column']),
   [role='columnheader'] [role='button']:not([aria-label='Resize Column']):hover {
-    color: var(--pf-t--global--text--color--regular) !important;
+    color: var(--pf-t--global--icon--color--subtle);
   }
 
   .table-header-text {
     display: inline-flex;
     align-items: flex-start;
+    font-size: var(--pf-t--global--font--size--body--sm) !important;
+    font-weight: var(--pf-t--global--font--weight--body--bold) !important;
+    line-height: var(--pf-t--global--font--line-height--body);
     vertical-align: middle;
     color: inherit;
   }
@@ -282,7 +334,7 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
         padding-block-end: var(--pf-t--global--spacer--sm);
         padding-inline-start: var(--pf-t--global--spacer--sm);
         padding-inline-end: var(--pf-t--global--spacer--sm);
-        color: initial !important;
+        color: var(--pf-t--global--text--color--regular) !important;
       }
       a:hover {
         font-weight: normal !important;
@@ -296,7 +348,7 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
   }
 
   div:has(> .mlflow-experiment-page-side-nav-collapsed) {
-    color: initial;
+    color: var(--pf-t--global--text--color--regular);
   }
 
   a:has(.mlflow-experiment-page-side-nav-full) {
@@ -360,8 +412,8 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
         color: inherit;
       }
 
-      &:hover {
-        background-color: var(--pf-t--global--background--color--primary--hover);
+      &:hover:not([aria-pressed='true']) {
+        background-color: var(--pf-t--global--background--color--action--plain--hover) !important;
       }
     }
 
@@ -414,5 +466,86 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
       font-family: inherit;
       color: var(--pf-t--global--color--status--danger--default);
     }
+  }
+
+  // Required field asterisk (FormUI.Label)
+  label.du-bois-light-label > span > span[aria-hidden='true'],
+  label.du-bois-dark-label > span > span[aria-hidden='true'] {
+    color: var(--pf-t--global--color--status--danger--default);
+    margin-inline-start: var(--pf-t--global--spacer--xs);
+  }
+
+  /* All pencil/edit icons */
+  span[role='img']:has(> svg > path[d^='M13.487']) {
+    position: relative;
+
+    svg {
+      visibility: hidden !important;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0.8em;
+      height: 0.8em;
+      background-color: currentColor;
+      mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik00OTcuOSAxNDIuMWwtNDYuMSA0Ni4xYy00LjcgNC43LTEyLjMgNC43LTE3IDBsLTExMS0xMTFjLTQuNy00LjctNC43LTEyLjMgMC0xN2w0Ni4xLTQ2LjFjMTguNy0xOC43IDQ5LjEtMTguNyA2Ny45IDBsNjAuMSA2MC4xYzE4LjggMTguNyAxOC44IDQ5LjEgMCA2Ny45ek0yODQuMiA5OS44TDIxLjYgMzYyLjQuNCA0ODMuOWMtMi45IDE2LjQgMTEuNCAzMC42IDI3LjggMjcuOGwxMjEuNS0yMS4zIDI2Mi42LTI2Mi42YzQuNy00LjcgNC43LTEyLjMgMC0xN2wtMTExLTExMWMtNC44LTQuNy0xMi40LTQuNy0xNy4xIDB6TTEyNC4xIDMzOS45Yy01LjUtNS41LTUuNS0xNC4zIDAtMTkuOGwxNTQtMTU0YzUuNS01LjUgMTQuMy01LjUgMTkuOCAwczUuNSAxNC4zIDAgMTkuOGwtMTU0IDE1NGMtNS41IDUuNS0xNC4zIDUuNS0xOS44IDB6TTg4IDQyNGg0OHYzNi4zbC02NC41IDExLjMtMzEuMS0zMS4xTDUxLjcgMzc2SDg4djQ4eiIvPjwvc3ZnPg==');
+      -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik00OTcuOSAxNDIuMWwtNDYuMSA0Ni4xYy00LjcgNC43LTEyLjMgNC43LTE3IDBsLTExMS0xMTFjLTQuNy00LjctNC43LTEyLjMgMC0xN2w0Ni4xLTQ2LjFjMTguNy0xOC43IDQ5LjEtMTguNyA2Ny45IDBsNjAuMSA2MC4xYzE4LjggMTguNyAxOC44IDQ5LjEgMCA2Ny45ek0yODQuMiA5OS44TDIxLjYgMzYyLjQuNCA0ODMuOWMtMi45IDE2LjQgMTEuNCAzMC42IDI3LjggMjcuOGwxMjEuNS0yMS4zIDI2Mi42LTI2Mi42YzQuNy00LjcgNC43LTEyLjMgMC0xN2wtMTExLTExMWMtNC44LTQuNy0xMi40LTQuNy0xNy4xIDB6TTEyNC4xIDMzOS45Yy01LjUtNS41LTUuNS0xNC4zIDAtMTkuOGwxNTQtMTU0YzUuNS01LjUgMTQuMy01LjUgMTkuOCAwczUuNSAxNC4zIDAgMTkuOGwtMTU0IDE1NGMtNS41IDUuNS0xNC4zIDUuNS0xOS44IDB6TTg4IDQyNGg0OHYzNi4zbC02NC41IDExLjMtMzEuMS0zMS4xTDUxLjcgMzc2SDg4djQ4eiIvPjwvc3ZnPg==');
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      -webkit-mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+    }
+  }
+
+  /* All trash icons to PF fa-trash */
+  span[role='img']:has(> svg > path[d^='M6 0a']) {
+    position: relative;
+
+    svg {
+      visibility: hidden !important;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0.8em;
+      height: 0.8em;
+      background-color: currentColor;
+      mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik00MzIgMzJIMzEybC05LjQtMTguN0EyNCAyNCAwIDAgMCAyODEuMSAwSDE2Ni44YTIzLjcyIDIzLjcyIDAgMCAwLTIxLjQgMTMuM0wxMzYgMzJIMTZBMTYgMTYgMCAwIDAgMCA0OHYzMmExNiAxNiAwIDAgMCAxNiAxNmg0MTZhMTYgMTYgMCAwIDAgMTYtMTZWNDhhMTYgMTYgMCAwIDAtMTYtMTZ6TTUzLjIgNDY3YTQ4IDQ4IDAgMCAwIDQ3LjkgNDVoMjQ1LjhhNDggNDggMCAwIDAgNDcuOS00NUw0MTYgMTI4SDMyeiIvPjwvc3ZnPg==');
+      -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik00MzIgMzJIMzEybC05LjQtMTguN0EyNCAyNCAwIDAgMCAyODEuMSAwSDE2Ni44YTIzLjcyIDIzLjcyIDAgMCAwLTIxLjQgMTMuM0wxMzYgMzJIMTZBMTYgMTYgMCAwIDAgMCA0OHYzMmExNiAxNiAwIDAgMCAxNiAxNmg0MTZhMTYgMTYgMCAwIDAgMTYtMTZWNDhhMTYgMTYgMCAwIDAtMTYtMTZ6TTUzLjIgNDY3YTQ4IDQ4IDAgMCAwIDQ3LjkgNDVoMjQ1LjhhNDggNDggMCAwIDAgNDcuOS00NUw0MTYgMTI4SDMyeiIvPjwvc3ZnPg==');
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      -webkit-mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+    }
+  }
+
+  /* Feature cards: keep uniform width regardless of card count */
+  /* Needed due to AI Gateway card removal */
+  section > div > div:has(> a[target='_blank']) {
+    > a,
+    > button {
+      flex: 0 1 25% !important;
+    }
+  }
+
+  /* Align the "Add tag" button with the inputs */
+  button[data-component-id^='codegen_mlflow_app_src_common_hooks_useeditkeyvaluetagsmodal'] {
+    align-self: flex-end !important;
+    min-height: calc(
+      var(--pf-t--global--font--size--body--default) * var(--pf-t--global--font--line-height--body) +
+        var(--pf-t--global--spacer--sm) * 2
+    ) !important;
   }
 }
