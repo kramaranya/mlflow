@@ -4,6 +4,12 @@
 .mlflow-federated,
 body > [data-mlflow-federated-portal-container='true'],
 body > [data-mlflow-federated-portal-root='true'] {
+  a[data-mlflow-embedded-link-guard='true'] {
+    cursor: default !important;
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
   a[href*='/models/']:not([href*='/experiments/']) {
     pointer-events: none !important;
     cursor: default !important;
