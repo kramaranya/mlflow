@@ -22,6 +22,7 @@ const moduleFederationConfig = {
   exposes: {
     './MlflowExperimentWrapper': './src/odh/experiments/MlflowExperimentWrapper',
     './MlflowPromptsWrapper': './src/odh/prompts/MlflowPromptsWrapper',
+    './MlflowRunTabsWrapper': './src/odh/runs/MlflowRunTabsWrapper',
   },
   runtime: false,
   dts: true,
