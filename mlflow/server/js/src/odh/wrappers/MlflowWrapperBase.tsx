@@ -48,6 +48,7 @@ import { telemetryClient } from '../../telemetry';
 import { useMLflowDarkTheme } from '../../common/hooks/useMLflowDarkTheme';
 import { useEmbeddedLinkInterceptor } from '../../common/hooks/useEmbeddedLinkInterceptor';
 import { WorkflowTypeProvider } from '../../common/contexts/WorkflowTypeContext';
+import AppErrorBoundary from '../../common/components/error-boundaries/AppErrorBoundary';
 
 export interface MlflowFederatedShellProps {
   /** Required when using BrowserRouter (page mode). Ignored in MemoryRouter mode. */
@@ -152,30 +153,32 @@ const MlflowWrapperBase: React.FC<MlflowFederatedShellProps> = ({
               <DesignSystemEventProvider callback={logObservabilityEvent}>
                 <DesignSystemThemeProvider isDarkMode={isDarkTheme}>
                   <DesignSystemProvider getPopupContainer={getPopupContainer}>
-                    <EmotionThemeProvider theme={PATTERN_FLY_TOKEN_TRANSLATION}>
-                      <DarkThemeProvider setIsDarkTheme={setIsDarkTheme}>
-                        <QueryClientProvider client={queryClient}>
-                          <ServerInfoProvider>
-                            {memoryRouterEntries ? (
-                              <MemoryRouter initialEntries={memoryRouterEntries}>
-                                <WorkflowTypeProvider>
-                                  <React.Suspense fallback={<LegacySkeleton />}>{children}</React.Suspense>
-                                </WorkflowTypeProvider>
-                              </MemoryRouter>
-                            ) : (
-                              <BrowserRouter basename={basename}>
-                                <WorkflowTypeProvider>
-                                  <WorkspaceSync>
-                                    {breadcrumbReporter}
+                    <AppErrorBoundary>
+                      <EmotionThemeProvider theme={PATTERN_FLY_TOKEN_TRANSLATION}>
+                        <DarkThemeProvider setIsDarkTheme={setIsDarkTheme}>
+                          <QueryClientProvider client={queryClient}>
+                            <ServerInfoProvider>
+                              {memoryRouterEntries ? (
+                                <MemoryRouter initialEntries={memoryRouterEntries}>
+                                  <WorkflowTypeProvider>
                                     <React.Suspense fallback={<LegacySkeleton />}>{children}</React.Suspense>
-                                  </WorkspaceSync>
-                                </WorkflowTypeProvider>
-                              </BrowserRouter>
-                            )}
-                          </ServerInfoProvider>
-                        </QueryClientProvider>
-                      </DarkThemeProvider>
-                    </EmotionThemeProvider>
+                                  </WorkflowTypeProvider>
+                                </MemoryRouter>
+                              ) : (
+                                <BrowserRouter basename={basename}>
+                                  <WorkflowTypeProvider>
+                                    <WorkspaceSync>
+                                      {breadcrumbReporter}
+                                      <React.Suspense fallback={<LegacySkeleton />}>{children}</React.Suspense>
+                                    </WorkspaceSync>
+                                  </WorkflowTypeProvider>
+                                </BrowserRouter>
+                              )}
+                            </ServerInfoProvider>
+                          </QueryClientProvider>
+                        </DarkThemeProvider>
+                      </EmotionThemeProvider>
+                    </AppErrorBoundary>
                   </DesignSystemProvider>
                 </DesignSystemThemeProvider>
               </DesignSystemEventProvider>

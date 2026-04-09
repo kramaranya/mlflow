@@ -1,3 +1,5 @@
+@use './icons' as icons;
+
 $mlflow-table-header-sort-icon-size: 0.625em;
 $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
 
@@ -119,15 +121,22 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
       padding-block-end: var(--pf-t--global--spacer--sm);
       padding-inline-start: var(--pf-t--global--spacer--sm);
       padding-inline-end: var(--pf-t--global--spacer--sm);
+
       &:hover {
         background-color: transparent;
+      }
+
+      /* Override the Emotion "row > *" border-bottom applied to wrapper divs
+         between the row and cells — the row already has border-block-end. */
+      > * {
+        border-bottom: none !important;
       }
 
       div[role='cell'] {
         border-bottom: none;
 
         &:hover {
-          background-color: transparent;
+          background-color: transparent !important;
         }
 
         span > a {
@@ -135,6 +144,32 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
           text-decoration: underline;
           &:hover {
             color: var(--pf-t--global--text--color--link--hover);
+          }
+        }
+      }
+
+      > div:not([role]) {
+        background-color: transparent !important;
+        border-bottom-width: 0 !important;
+
+        // PF6 ChevronRightIcon
+        span[role='img'] {
+          position: relative;
+
+          svg {
+            visibility: hidden !important;
+          }
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.8em;
+            height: 0.8em;
+            background-color: currentColor;
+            @include icons.pf-mask-icon(icons.$pf-icon-chevron-right);
           }
         }
       }
@@ -150,10 +185,26 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
       padding-inline-end: var(--pf-t--global--spacer--sm);
       background-color: var(--pf-t--global--background--color--primary--default);
     }
+
     div[role='row'] {
       height: auto;
-      &:hover {
-        background-color: transparent;
+    }
+  }
+
+  // Prompt versions table
+  div[aria-label='Prompt versions table'] > div[role='table'] {
+    div[role='row']:not(.table-isHeader) {
+      &:has(> div:not([role]) > span[role='img']):hover,
+      &:has(button[role='radio'][aria-checked='true']):hover {
+        background-color: color-mix(in srgb, var(--pf-t--global--color--brand--default) 16%, transparent) !important;
+      }
+
+      &:not(:has(button[role='radio'][aria-checked='true'])):not(:has(> div:not([role]) > span[role='img'])):hover {
+        background-color: var(--pf-t--global--background--color--action--plain--hover) !important;
+      }
+
+      div[role='cell'] {
+        background-color: transparent !important;
       }
     }
   }
@@ -182,9 +233,9 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
     }
   }
 
-  /* Table header alignment */
-  [role='columnheader'] [role='button'],
-  [role='columnheader'] > div {
+  /* Table header alignment (exclude resize handles so their dividers keep align-items:stretch) */
+  [role='columnheader'] [role='button']:not([aria-label='Resize Column']),
+  [role='columnheader'] > div:not([aria-label='Resize Column']) {
     display: inline-flex;
     align-items: center;
     gap: var(--pf-t--global--spacer--xs);
@@ -193,15 +244,18 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
       var(--pf-t--global--motion--timing-function--default);
   }
 
-  [role='columnheader']:hover [role='button'],
-  [role='columnheader']:hover > div,
-  [role='columnheader'] [role='button']:hover {
-    color: var(--pf-t--global--text--color--regular) !important;
+  [role='columnheader']:hover [role='button']:not([aria-label='Resize Column']),
+  [role='columnheader']:hover > div:not([aria-label='Resize Column']),
+  [role='columnheader'] [role='button']:not([aria-label='Resize Column']):hover {
+    color: var(--pf-t--global--icon--color--subtle);
   }
 
   .table-header-text {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
+    font-size: var(--pf-t--global--font--size--body--sm) !important;
+    font-weight: var(--pf-t--global--font--weight--body--bold) !important;
+    line-height: var(--pf-t--global--font--line-height--body);
     vertical-align: middle;
     color: inherit;
   }
@@ -253,18 +307,18 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
 
   /* Table sort icons */
   [aria-sort='none'] .table-header-icon-container .anticon::before {
-    mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgNTEyIj4KICA8cGF0aCBkPSJNMjE0LjA1OSAzNzcuOTQxSDE2OFYxMzQuMDU5aDQ2LjA1OWMyMS4zODIgMCAzMi4wOS0yNS44NTEgMTYuOTcxLTQwLjk3MUwxNDQuOTcxIDcuMDI5Yy05LjM3My05LjM3My0yNC41NjgtOS4zNzMtMzMuOTQxIDBMMjQuOTcxIDkzLjA4OGMtMTUuMTE5IDE1LjExOS00LjQxMSA0MC45NzEgMTYuOTcxIDQwLjk3MUg4OHYyNDMuODgySDQxLjk0MWMtMjEuMzgyIDAtMzIuMDkgMjUuODUxLTE2Ljk3MSA0MC45NzFsODYuMDU5IDg2LjA1OWM5LjM3MyA5LjM3MyAyNC41NjggOS4zNzMgMzMuOTQxIDBsODYuMDU5LTg2LjA1OWMxNS4xMi0xNS4xMTkgNC40MTItNDAuOTcxLTE2Ljk3LTQwLjk3MXoiLz4KPC9zdmc+Cgo=');
-    -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgNTEyIj4KICA8cGF0aCBkPSJNMjE0LjA1OSAzNzcuOTQxSDE2OFYxMzQuMDU5aDQ2LjA1OWMyMS4zODIgMCAzMi4wOS0yNS44NTEgMTYuOTcxLTQwLjk3MUwxNDQuOTcxIDcuMDI5Yy05LjM3My05LjM3My0yNC41NjgtOS4zNzMtMzMuOTQxIDBMMjQuOTcxIDkzLjA4OGMtMTUuMTE5IDE1LjExOS00LjQxMSA0MC45NzEgMTYuOTcxIDQwLjk3MUg4OHYyNDMuODgySDQxLjk0MWMtMjEuMzgyIDAtMzIuMDkgMjUuODUxLTE2Ljk3MSA0MC45NzFsODYuMDU5IDg2LjA1OWM5LjM3MyA5LjM3MyAyNC41NjggOS4zNzMgMzMuOTQxIDBsODYuMDU5LTg2LjA1OWMxNS4xMi0xNS4xMTkgNC40MTItNDAuOTcxLTE2Ljk3LTQwLjk3MXoiLz4KPC9zdmc+Cgo=');
+    mask-image: icons.$pf-icon-sort;
+    -webkit-mask-image: icons.$pf-icon-sort;
   }
 
   [aria-sort='ascending'] .table-header-icon-container .anticon::before {
-    mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgNTEyIj4KICA8cGF0aCBkPSJNODggMTY2LjA1OVY0NjhjMCA2LjYyNyA1LjM3MyAxMiAxMiAxMmg1NmM2LjYyNyAwIDEyLTUuMzczIDEyLTEyVjE2Ni4wNTloNDYuMDU5YzIxLjM4MiAwIDMyLjA5LTI1Ljg1MSAxNi45NzEtNDAuOTcxbC04Ni4wNTktODYuMDU5Yy05LjM3My05LjM3My0yNC41NjktOS4zNzMtMzMuOTQxIDBsLTg2LjA1OSA4Ni4wNTljLTE1LjExOSAxNS4xMTktNC40MTEgNDAuOTcxIDE2Ljk3MSA0MC45NzFIODh6Ii8+Cjwvc3ZnPgoK');
-    -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgNTEyIj4KICA8cGF0aCBkPSJNODggMTY2LjA1OVY0NjhjMCA2LjYyNyA1LjM3MyAxMiAxMiAxMmg1NmM2LjYyNyAwIDEyLTUuMzczIDEyLTEyVjE2Ni4wNTloNDYuMDU5YzIxLjM4MiAwIDMyLjA5LTI1Ljg1MSAxNi45NzEtNDAuOTcxbC04Ni4wNTktODYuMDU5Yy05LjM3My05LjM3My0yNC41NjktOS4zNzMtMzMuOTQxIDBsLTg2LjA1OSA4Ni4wNTljLTE1LjExOSAxNS4xMTktNC40MTEgNDAuOTcxIDE2Ljk3MSA0MC45NzFIODh6Ii8+Cjwvc3ZnPgoK');
+    mask-image: icons.$pf-icon-sort-up;
+    -webkit-mask-image: icons.$pf-icon-sort-up;
   }
 
   [aria-sort='descending'] .table-header-icon-container .anticon::before {
-    mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgNTEyIj4KICA8cGF0aCBkPSJNMTY4IDM0NS45NDFWNDRjMC02LjYyNy01LjM3My0xMi0xMi0xMmgtNTZjLTYuNjI3IDAtMTIgNS4zNzMtMTIgMTJ2MzAxLjk0MUg0MS45NDFjLTIxLjM4MiAwLTMyLjA5IDI1Ljg1MS0xNi45NzEgNDAuOTcxbDg2LjA1OSA4Ni4wNTljOS4zNzMgOS4zNzMgMjQuNTY5IDkuMzczIDMzLjk0MSAwbDg2LjA1OS04Ni4wNTljMTUuMTE5LTE1LjExOSA0LjQxMS00MC45NzEtMTYuOTcxLTQwLjk3MUgxNjh6Ii8+Cjwvc3ZnPgoK');
-    -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgNTEyIj4KICA8cGF0aCBkPSJNMTY4IDM0NS45NDFWNDRjMC02LjYyNy01LjM3My0xMi0xMi0xMmgtNTZjLTYuNjI3IDAtMTIgNS4zNzMtMTIgMTJ2MzAxLjk0MUg0MS45NDFjLTIxLjM4MiAwLTMyLjA5IDI1Ljg1MS0xNi45NzEgNDAuOTcxbDg2LjA1OSA4Ni4wNTljOS4zNzMgOS4zNzMgMjQuNTY5IDkuMzczIDMzLjk0MSAwbDg2LjA1OS04Ni4wNTljMTUuMTE5LTE1LjExOSA0LjQxMS00MC45NzEtMTYuOTcxLTQwLjk3MUgxNjh6Ii8+Cjwvc3ZnPgoK');
+    mask-image: icons.$pf-icon-sort-down;
+    -webkit-mask-image: icons.$pf-icon-sort-down;
   }
 
   aside > nav > ul {
@@ -275,7 +329,7 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
         padding-block-end: var(--pf-t--global--spacer--sm);
         padding-inline-start: var(--pf-t--global--spacer--sm);
         padding-inline-end: var(--pf-t--global--spacer--sm);
-        color: initial !important;
+        color: var(--pf-t--global--text--color--regular) !important;
       }
       a:hover {
         font-weight: normal !important;
@@ -289,7 +343,7 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
   }
 
   div:has(> .mlflow-experiment-page-side-nav-collapsed) {
-    color: initial;
+    color: var(--pf-t--global--text--color--regular);
   }
 
   a:has(.mlflow-experiment-page-side-nav-full) {
@@ -353,8 +407,8 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
         color: inherit;
       }
 
-      &:hover {
-        background-color: var(--pf-t--global--background--color--primary--hover);
+      &:hover:not([aria-pressed='true']) {
+        background-color: var(--pf-t--global--background--color--action--plain--hover) !important;
       }
     }
 
@@ -407,5 +461,72 @@ $mlflow-table-header-sort-icon-baseline-offset: 0.05em;
       font-family: inherit;
       color: var(--pf-t--global--color--status--danger--default);
     }
+  }
+
+  // Required field asterisk (FormUI.Label)
+  label.du-bois-light-label > span > span[aria-hidden='true'],
+  label.du-bois-dark-label > span > span[aria-hidden='true'] {
+    color: var(--pf-t--global--color--status--danger--default);
+    margin-inline-start: var(--pf-t--global--spacer--xs);
+  }
+
+  /* All pencil/edit icons */
+  span[role='img']:has(> svg > path[d^='M13.487']) {
+    position: relative;
+
+    svg {
+      visibility: hidden !important;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0.8em;
+      height: 0.8em;
+      background-color: currentColor;
+      @include icons.pf-mask-icon(icons.$pf-icon-pen);
+    }
+  }
+
+  /* All trash icons to PF fa-trash */
+  span[role='img']:has(> svg > path[d^='M6 0a']) {
+    position: relative;
+
+    svg {
+      visibility: hidden !important;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0.8em;
+      height: 0.8em;
+      background-color: currentColor;
+      @include icons.pf-mask-icon(icons.$pf-icon-trash);
+    }
+  }
+
+  /* Feature cards: keep uniform width regardless of card count */
+  /* Needed due to AI Gateway card removal */
+  section > div > div:has(> a[target='_blank']) {
+    > a,
+    > button {
+      flex: 0 1 25% !important;
+    }
+  }
+
+  /* Align the "Add tag" button with the inputs */
+  button[data-component-id^='codegen_mlflow_app_src_common_hooks_useeditkeyvaluetagsmodal'] {
+    align-self: flex-end !important;
+    min-height: calc(
+      var(--pf-t--global--font--size--body--default) * var(--pf-t--global--font--line-height--body) +
+        var(--pf-t--global--spacer--sm) * 2
+    ) !important;
   }
 }

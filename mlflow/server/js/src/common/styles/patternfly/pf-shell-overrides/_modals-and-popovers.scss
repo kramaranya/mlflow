@@ -1,3 +1,5 @@
+@use './icons' as icons;
+
 .pf-shell-root {
   /* Modals */
   .du-bois-light-modal,
@@ -130,6 +132,147 @@
     &:hover,
     &:focus-visible {
       color: var(--pf-t--global--icon--color--regular) !important;
+    }
+  }
+
+  /* Notifications – PF alert style */
+  .du-bois-light-notification,
+  .du-bois-dark-notification {
+    font-family: var(--pf-t--global--font--family--body);
+  }
+
+  .du-bois-light-notification-notice,
+  .du-bois-dark-notification-notice {
+    border-radius: var(--pf-t--global--border--radius--medium);
+    background-color: var(--pf-t--global--background--color--floating--default);
+    box-shadow: var(--pf-t--global--box-shadow--lg) !important;
+    border: var(--pf-t--global--border--width--200) solid var(--pf-t--global--border--color--default);
+  }
+
+  .du-bois-light-notification-notice-error,
+  .du-bois-dark-notification-notice-error {
+    border-color: var(--pf-t--global--border--color--status--danger--default);
+  }
+
+  .du-bois-light-notification-notice-success,
+  .du-bois-dark-notification-notice-success {
+    border-color: var(--pf-t--global--border--color--status--success--default);
+  }
+
+  .du-bois-light-notification-notice-info,
+  .du-bois-dark-notification-notice-info {
+    border-color: var(--pf-t--global--border--color--status--info--default);
+  }
+
+  .du-bois-light-notification-notice-warning,
+  .du-bois-dark-notification-notice-warning {
+    border-color: var(--pf-t--global--border--color--status--warning--default);
+  }
+
+  .anticon.du-bois-light-notification-notice-icon-error,
+  .anticon.du-bois-dark-notification-notice-icon-error {
+    color: var(--pf-t--global--icon--color--status--danger--default);
+    position: relative;
+
+    svg {
+      visibility: hidden !important;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 1em;
+      height: 1em;
+      background-color: currentColor;
+      @include icons.pf-mask-icon(icons.$pf-icon-circle-exclamation);
+    }
+  }
+
+  .anticon.du-bois-light-notification-notice-icon-success,
+  .anticon.du-bois-dark-notification-notice-icon-success {
+    color: var(--pf-t--global--icon--color--status--success--default);
+    position: relative;
+
+    svg {
+      visibility: hidden !important;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 1em;
+      height: 1em;
+      background-color: currentColor;
+      @include icons.pf-mask-icon(icons.$pf-icon-circle-check);
+    }
+  }
+
+  .anticon.du-bois-light-notification-notice-icon-info,
+  .anticon.du-bois-dark-notification-notice-icon-info {
+    color: var(--pf-t--global--icon--color--status--info--default);
+    position: relative;
+
+    svg {
+      visibility: hidden !important;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 1em;
+      height: 1em;
+      background-color: currentColor;
+      @include icons.pf-mask-icon(icons.$pf-icon-circle-info);
+    }
+  }
+
+  .anticon.du-bois-light-notification-notice-icon-warning,
+  .anticon.du-bois-dark-notification-notice-icon-warning {
+    color: var(--pf-t--global--icon--color--status--warning--default);
+    position: relative;
+
+    svg {
+      visibility: hidden !important;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 1em;
+      height: 1em;
+      background-color: currentColor;
+      @include icons.pf-mask-icon(icons.$pf-icon-triangle-exclamation);
+    }
+  }
+
+  .du-bois-light-notification-notice-message,
+  .du-bois-dark-notification-notice-message {
+    color: var(--pf-t--global--text--color--regular);
+  }
+
+  .du-bois-light-notification-notice-description,
+  .du-bois-dark-notification-notice-description {
+    color: var(--pf-t--global--text--color--regular);
+  }
+
+  .du-bois-light-notification-notice-close,
+  .du-bois-dark-notification-notice-close {
+    color: var(--pf-t--global--icon--color--regular);
+
+    &:hover {
+      color: var(--pf-t--global--icon--color--hover);
     }
   }
 }

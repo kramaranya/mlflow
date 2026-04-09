@@ -1,3 +1,5 @@
+@use './icons' as icons;
+
 // Private helper mixins in this file are only for exact duplicates or
 // value-only reuse. Keep near-match selectors explicit so dropdown/select
 // state behavior stays easy to reason about.
@@ -225,7 +227,7 @@
     overflow-y: auto !important;
     overflow-x: hidden !important;
     max-height: calc(var(--pf-t--global--spacer--4xl) * 6) !important;
-    min-width: var(--radix-popover-trigger-width, var(--radix-popper-anchor-width, 100%)) !important;
+    min-width: var(--radix-popover-trigger-width, var(--radix-popper-anchor-width, 200px)) !important;
     width: max-content !important;
     padding: var(--pf-t--global--spacer--sm) 0 !important;
     font-family: var(--pf-t--global--font--family--body) !important;
@@ -274,6 +276,11 @@
 
     span[role='button'][aria-label='Clear selection'] {
       padding-top: var(--pf-t--global--spacer--xs);
+      color: var(--pf-t--global--border--color--default) !important;
+    }
+
+    span[role='button'][aria-label='Clear selection']:hover {
+      color: var(--pf-t--global--icon--color--subtle) !important;
     }
   }
 
@@ -351,6 +358,18 @@
       @include control-min-height;
       box-sizing: border-box !important;
 
+      .du-bois-light-select-selection-overflow [data-component-type='tag'],
+      .du-bois-dark-select-selection-overflow [data-component-type='tag'] {
+        button {
+          &:hover,
+          &:focus {
+            background: none !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+        }
+      }
+
       .du-bois-light-select-selection-search,
       .du-bois-dark-select-selection-search {
         overflow: hidden !important;
@@ -385,9 +404,33 @@
           align-items: center !important;
           justify-content: center !important;
           border-radius: var(--pf-t--global--border--radius--small) !important;
+          background: none !important;
+          box-shadow: none !important;
 
           &:hover {
             border-radius: var(--pf-t--global--border--radius--small) !important;
+            background: none !important;
+            box-shadow: none !important;
+          }
+
+          span[role='img'] {
+            position: relative;
+
+            svg {
+              visibility: hidden !important;
+            }
+
+            &::after {
+              content: '';
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 0.65em;
+              height: 0.65em;
+              background-color: currentColor;
+              @include icons.pf-mask-icon(icons.$pf-icon-times);
+            }
           }
         }
       }
